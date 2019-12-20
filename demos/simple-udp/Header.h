@@ -24,10 +24,13 @@
 #include <sys/ioctl.h>
 #include <linux/wireless.h>
 #include <alloca.h>
+#include <chrono>
+#include <thread>
 
 #define MAX_PACKET_SIZE 496 // exclude header
 
 #define APPID 0x11223344
+#define TIME_PER_TICK 1000
 
 const unsigned int appid = APPID;
 

@@ -1,0 +1,26 @@
+{
+    "host": "9.134.22.167",
+    "username": "billypu",
+    "password": "1qaz@WSX3edc$RFV",
+    "remotePath": "/data/billypu/devspace/simple-udp",
+    "protocol": "sftp",
+    "port": 36000,
+    "fileNameEncoding": "utf8",
+    "autoUpload": false,
+    "autoDelete": false,
+    "autoDownload": false,
+    "ignore": [
+        ".git",
+        "/.vscode",
+        "**/.vscode/**",
+        "**/.git/**",
+        "**/.svn/**",
+        "**/.o/**",
+        "**/.cpp.o/**",
+        "**/tools/**",
+        "**/CMakeFiles/**",
+        "**/gocode/**",
+        "**/build/**",
+        "**/.DS_Store"
+    ]
+}

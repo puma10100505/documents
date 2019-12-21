@@ -23,6 +23,10 @@
 #include <alloca.h>
 #include <string>
 
+#include <chrono>
+#include <thread>
+
+
 using namespace std;
 
 #define PLATFORM_WINDOWS 1
@@ -51,6 +55,7 @@ using namespace std;
 
 #define MAX_PACKET_SIZE 496 // exclude packet header
 #define APPID 0x11223344
+#define TIME_PER_TICK 1000
 
 static const unsigned int appid = APPID;
 static const unsigned short port = 8800;

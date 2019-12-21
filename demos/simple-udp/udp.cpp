@@ -101,6 +101,9 @@ void new_client()
 void new_server()
 {
     NetSocket socket;
+    int64_t svr_tick = 0;
+
+    std::chrono::milliseconds ms_duration(TIME_PER_TICK);
 
     int ret = socket.Open();
     if (ret < 0)
@@ -115,6 +118,11 @@ void new_server()
 
     while (true)
     {
+        std::this_thread::sleep_for(ms_duration);
+        svr_tick++;
+        printf("tick: %ld\n", svr_tick);
+
+        auto tick_start = std::chrono::high_resolution_clock::now();
         NetAddress client_addr;
         char raw_data[MAX_PACKET_SIZE];
         char payload_data[MAX_PACKET_SIZE];
@@ -153,6 +161,12 @@ void new_server()
         printf("after recv from client(address: %u.%u.%u.%u, port: %u), datalen: %ld, data: [%s]\n",
                client_addr.GetA(), client_addr.GetB(), client_addr.GetC(), client_addr.GetD(),
                client_addr.GetPort(), ret, payload_data);
+
+        auto tick_end = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<float> frame_elapsed = tick_end - tick_start;
+
+        printf("frame_elapsed: %f\n", frame_elapsed.count());
     }
 
     socket.Close();

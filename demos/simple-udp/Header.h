@@ -14,6 +14,7 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <algorithm>
 #include <arpa/inet.h>
 #include <errno.h>
 // #include <linux/netlink.h>
@@ -25,7 +26,7 @@
 
 #include <chrono>
 #include <thread>
-
+#include <iostream>
 
 using namespace std;
 

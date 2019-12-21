@@ -1,6 +1,8 @@
 #include "NetAddress.h"
 #include "Header.h"
 
+using namespace yinpsoft;
+
 NetAddress::NetAddress(unsigned char a, unsigned char b,
                        unsigned char c, unsigned char d, unsigned short p)
 {

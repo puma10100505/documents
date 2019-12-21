@@ -4,12 +4,6 @@
 
 #define PACKET_LEN 500
 
-#include <string>
-
-using namespace std;
-
-unsigned short port = 8800;
-#define SERVER_IPADDR "9.134.22.167"
 
 // TODO: recv & send packet timeout, calc in tick
 

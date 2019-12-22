@@ -124,7 +124,7 @@ void new_server()
     {
         std::this_thread::sleep_for(ms_duration);
         svr_tick++;
-        printf("tick: %lld\n", svr_tick);
+        printf("tick: %ld\n", svr_tick);
 
         auto tick_start = std::chrono::high_resolution_clock::now();
         NetAddress client_addr;

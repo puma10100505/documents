@@ -42,7 +42,7 @@ using namespace std;
 #define PLATFORM PLATFORM_UNIX
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS 
+#if PLATFORM == PLATFORM_WINDOWS
 #include <winsock2.h>
 #elif PLATFORM == PLATFORM_MAC || PLATFORM == PLATFORM_UNIX
 #include <sys/socket.h>
@@ -50,9 +50,9 @@ using namespace std;
 #include <fcntl.h>
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS 
+#if PLATFORM == PLATFORM_WINDOWS
 #pragma comment(lib, "wsock32.lib")
-#endif 
+#endif
 
 #define MAX_PACKET_SIZE 496 // exclude packet header
 #define APPID 0x11223344
@@ -60,12 +60,19 @@ using namespace std;
 
 static const unsigned int appid = APPID;
 static const unsigned short port = 8800;
-static const char* SERVER_IPADDR = "127.0.0.1";
+// static const char* SERVER_IPADDR = "127.0.0.1";
 
+#pragma pack(1)
 typedef struct stNetMsgHeader
 {
-    unsigned int appid; // REF: https://gafferongames.com/post/virtual_connection_over_udp/
+    uint32_t appid; // REF: https://gafferongames.com/post/virtual_connection_over_udp/
+
+    // Reliable Ack  REF: https://gafferongames.com/post/reliability_ordering_and_congestion_avoidance_over_udp/
+    uint32_t sequence;
+    // TODO: uint32_t ack;
+    // TODO: uint32_t ack_bitfield;
 } NetMsgHeader;
+#pragma pack()
 
 typedef struct stNetMsg
 {

@@ -2,20 +2,20 @@
 
 using namespace yinpsoft;
 
-int RUDPServer::Initialize(uint32_t appid, unsigned short port)
+RUDPServer &RUDPServer::Initialize(uint32_t appid, unsigned short port)
 {
     application_id = appid;
     int result = svr_socket.Open();
     if (result < 0)
     {
-        return result;
+        return *this;
     }
 
     NetAddress address_info(port);
     svr_socket.Bind(address_info);
     svr_socket.SetNonBlock();
 
-    return 0;
+    return *this;
 }
 
 void RUDPServer::Tick(int fps)
@@ -52,6 +52,7 @@ void RUDPServer::Tick(int fps)
 
         last_client_packet_timestamp = std::chrono::high_resolution_clock::now();
 
+        // 检查包内容
         // 检查网络包长度是否合法
         if (recv_bytes < (ssize_t)sizeof(NetMsgHeader))
         {
@@ -59,12 +60,19 @@ void RUDPServer::Tick(int fps)
             continue;
         }
 
-        // 检查网络包是否来自合法客户端
-        unsigned int from_appid = *(unsigned int *)raw_data;
+        // 检查网络包是否来自合法客户端(appid检查)
+        uint32_t from_appid = *(uint32_t *)raw_data;
         if (from_appid != appid)
         {
             printf("this is no the packet from authenticated client, from_appid: %u\n", from_appid);
             continue;
+        }
+
+        // 序列号检查
+        uint32_t latest_remote_seq = *(uint32_t *)(raw_data + sizeof(uint32_t));
+        if (latest_remote_seq > remote_seq)
+        {
+            remote_seq = latest_remote_seq;
         }
 
         DumpPacket(raw_data, sizeof(raw_data));
@@ -73,8 +81,6 @@ void RUDPServer::Tick(int fps)
 
         // 提取网络包的数据部分
         memcpy(payload_data, raw_data + sizeof(NetMsgHeader), sizeof(raw_data) - sizeof(NetMsgHeader));
-
-        DumpPacket(payload_data, sizeof(payload_data));
 
         printf("[SERVER] - After receive data from [address: %u.%u.%u.%u, port: %u], [Content: %s][svr_tick: %ld]\n",
                client_addr.GetA(), client_addr.GetB(), client_addr.GetC(), client_addr.GetD(), client_addr.GetPort(), payload_data, svr_tick);
@@ -91,6 +97,8 @@ void RUDPServer::Tick(int fps)
         auto tick_end = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<float> frame_elapsed = tick_end - tick_start;
+
+        seq++;
 
         printf("[SERVER] - frame_elapsed: %f\n", frame_elapsed.count());
     }
@@ -114,6 +122,13 @@ void RUDPServer::SerializeData(const char *data, size_t len)
         raw_data[i] = (seq >> i * 8) & 0xff;
     }
     pack_size += sizeof(seq);
+
+    // pack the ack of header
+    for (uint32_t i = pack_size; i < pack_size + sizeof(remote_seq); i++)
+    {
+        raw_data[i] = (remote_seq >> i * 8) & 0xff;
+    }
+    pack_size += sizeof(remote_seq);
 
     // pack data
     memcpy(raw_data + pack_size, data, len);

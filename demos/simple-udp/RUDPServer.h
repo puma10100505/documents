@@ -10,7 +10,7 @@ public:
     RUDPServer() {}
     ~RUDPServer() {}
 
-    int Initialize(uint32_t appid, unsigned short port);
+    RUDPServer &Initialize(uint32_t appid, unsigned short port);
     void Tick(int fps = 30);
     void Stop();
 
@@ -23,7 +23,7 @@ private:
     int64_t svr_tick;
     uint32_t application_id;
     uint32_t seq;
-    uint32_t peer_seq;
+    uint32_t remote_seq;
     uint32_t pack_size;
 
     std::chrono::high_resolution_clock::time_point last_client_packet_timestamp;

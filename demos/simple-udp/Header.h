@@ -65,12 +65,14 @@ static const unsigned short port = 8800;
 #pragma pack(1)
 typedef struct stNetMsgHeader
 {
-    uint32_t appid; // REF: https://gafferongames.com/post/virtual_connection_over_udp/
+    uint32_t appid; /// REF: https://gafferongames.com/post/virtual_connection_over_udp/
 
-    // Reliable Ack  REF: https://gafferongames.com/post/reliability_ordering_and_congestion_avoidance_over_udp/
-    uint32_t sequence;
-    // TODO: uint32_t ack;
+    /* REF: https://gafferongames.com/post/reliability_ordering_and_congestion_avoidance_over_udp/ */
+    uint32_t sequence; /// Sequence Numbers
+    uint32_t ack;      /// Acks
     // TODO: uint32_t ack_bitfield;
+    /*---------------------------------------------------------------------------------------------*/
+
 } NetMsgHeader;
 #pragma pack()
 

@@ -328,14 +328,10 @@ int allinone()
 
 void new_client_v2()
 {
-    Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888);
-    Singleton<RUDPClient>::get_mutable_instance().Run();
 }
 
 void new_server_v2()
 {
-    Singleton<RUDPServer>::get_mutable_instance().Initialize(0x11223344, 8888);
-    Singleton<RUDPServer>::get_mutable_instance().Tick();
 }
 
 int main(int argc, char **argv)
@@ -353,14 +349,16 @@ int main(int argc, char **argv)
         printf("start server ...\n");
         // simserver();
         // new_server();
-        new_server_v2();
+        // new_server_v2();
+        Singleton<RUDPServer>::get_mutable_instance().Initialize(0x11223344, 8888).Tick(1);
     }
     else if (strncmp(type, "client", sizeof("client")) == 0)
     {
         printf("start client ...\n");
         // simclient();
         // new_client();
-        new_client_v2();
+        // new_client_v2();
+        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
     }
     else if (strncmp(type, "allinone", sizeof("allinone")) == 0)
     {

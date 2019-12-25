@@ -4,6 +4,8 @@
 
 using namespace yinpsoft;
 
+#define MAX_TRY_TIMES_FOR_SERVER_RESP 10
+
 namespace yinpsoft
 {
 class RUDPClient final
@@ -12,8 +14,8 @@ public:
     RUDPClient() {}
     ~RUDPClient() {}
 
-    int Initialize(uint32_t appid, unsigned int address,
-                   unsigned short port, int32_t timeout = 500);
+    RUDPClient &Initialize(uint32_t appid, unsigned int address,
+                           unsigned short port, int32_t timeout_sec = 5);
 
     void Run();
     void Stop();
@@ -28,7 +30,7 @@ private:
     NetAddress svr_address;
     int32_t wait_server_timeout;
     uint32_t seq;
-    uint32_t peer_seq;
+    uint32_t remote_seq;
     uint32_t pack_size;
 
     char request_packet[MAX_PACKET_SIZE];

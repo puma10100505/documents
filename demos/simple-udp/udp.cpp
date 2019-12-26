@@ -1,16 +1,13 @@
 #include "Header.h"
 
 #include "NetSocket.h"
+#include "Singleton.h"
+#include "RUDPClient.h"
+#include "RUDPServer.h"
 
 #define PACKET_LEN 500
 
-#include <string>
-
-using namespace std;
-
-unsigned short port = 8800;
-#define SERVER_IPADDR "9.134.22.167"
-
+using namespace yinpsoft;
 // TODO: recv & send packet timeout, calc in tick
 
 int simclient()
@@ -27,7 +24,8 @@ int simclient()
     struct sockaddr_in address;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr(SERVER_IPADDR);
+    // address.sin_addr.s_addr = inet_addr(SERVER_IPADDR);
+    address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
 
     // 3. set non-blocking
@@ -107,6 +105,9 @@ void new_client()
 void new_server()
 {
     NetSocket socket;
+    int64_t svr_tick = 0;
+
+    std::chrono::milliseconds ms_duration(TIME_PER_TICK);
 
     int ret = socket.Open();
     if (ret < 0)
@@ -121,6 +122,11 @@ void new_server()
 
     while (true)
     {
+        std::this_thread::sleep_for(ms_duration);
+        svr_tick++;
+        printf("tick: %ld\n", svr_tick);
+
+        auto tick_start = std::chrono::high_resolution_clock::now();
         NetAddress client_addr;
         char raw_data[MAX_PACKET_SIZE];
         char payload_data[MAX_PACKET_SIZE];
@@ -159,6 +165,12 @@ void new_server()
         printf("after recv from client(address: %u.%u.%u.%u, port: %u), datalen: %ld, data: [%s]\n",
                client_addr.GetA(), client_addr.GetB(), client_addr.GetC(), client_addr.GetD(),
                client_addr.GetPort(), ret, payload_data);
+
+        auto tick_end = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<float> frame_elapsed = tick_end - tick_start;
+
+        printf("frame_elapsed: %f\n", frame_elapsed.count());
     }
 
     socket.Close();
@@ -314,6 +326,14 @@ int allinone()
     return 0;
 }
 
+void new_client_v2()
+{
+}
+
+void new_server_v2()
+{
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -328,13 +348,17 @@ int main(int argc, char **argv)
     {
         printf("start server ...\n");
         // simserver();
-        new_server();
+        // new_server();
+        // new_server_v2();
+        Singleton<RUDPServer>::get_mutable_instance().Initialize(0x11223344, 8888).Tick(1);
     }
     else if (strncmp(type, "client", sizeof("client")) == 0)
     {
         printf("start client ...\n");
         // simclient();
-        new_client();
+        // new_client();
+        // new_client_v2();
+        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
     }
     else if (strncmp(type, "allinone", sizeof("allinone")) == 0)
     {

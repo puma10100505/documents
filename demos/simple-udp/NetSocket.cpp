@@ -1,5 +1,7 @@
 #include "NetSocket.h"
 
+using namespace yinpsoft;
+
 NetSocket::NetSocket()
 {
     // Nothing

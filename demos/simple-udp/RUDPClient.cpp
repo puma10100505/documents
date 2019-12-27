@@ -24,7 +24,6 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
 void RUDPClient::Run()
 {
     // init packet
-
     int ret = 0;
 
     while (true)

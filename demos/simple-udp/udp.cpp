@@ -4,6 +4,12 @@
 #include "Singleton.h"
 #include "RUDPClient.h"
 #include "RUDPServer.h"
+#include "BufferWriter.h"
+#include "BufferReader.h"
+
+#include "proto/src/NetMessage.h"
+
+#include "google/protobuf/message.h"
 
 #define PACKET_LEN 500
 
@@ -326,12 +332,34 @@ int allinone()
     return 0;
 }
 
-void new_client_v2()
+int Codecode()
 {
-}
+    yinpsoft::BufferWriter bw;
+    NetMessageHeader header;
+    header.ack = 1;
+    header.ack_bitfield = 10;
+    header.appid = APPID;
+    header.payload_size = sizeof("hello world");
+    header.send_time_ms = time(0);
+    header.sequence = 2;
 
-void new_server_v2()
-{
+    printf("BEFORE: appid: %u, ack: %u, ack_bitfield: %u, payload_size: %u, time: %ld, seq: %u\n",
+           header.appid, header.ack, header.ack_bitfield, header.payload_size, header.send_time_ms, header.sequence);
+
+    size_t len = header.Serialize(bw);
+
+    std::cout << "after serialize: " << len << std::endl;
+
+    NetMessageHeader header2;
+
+    yinpsoft::BufferReader br(bw.Raw().Buffer(), bw.Raw().Length());
+    br.MutableRaw().Rewind();
+    header2.Deserialize(br);
+
+    printf("AFTER: appid: %u, ack: %u, ack_bitfield: %u, payload_size: %u, time: %ld, seq: %u\n",
+           header2.appid, header2.ack, header2.ack_bitfield, header2.payload_size, header2.send_time_ms, header2.sequence);
+
+    return 0;
 }
 
 int main(int argc, char **argv)
@@ -347,17 +375,11 @@ int main(int argc, char **argv)
     if (strncmp(type, "server", sizeof("server")) == 0)
     {
         printf("start server ...\n");
-        // simserver();
-        // new_server();
-        // new_server_v2();
         Singleton<RUDPServer>::get_mutable_instance().Initialize(0x11223344, 8888).Tick(1);
     }
     else if (strncmp(type, "client", sizeof("client")) == 0)
     {
         printf("start client ...\n");
-        // simclient();
-        // new_client();
-        // new_client_v2();
         Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
     }
     else if (strncmp(type, "allinone", sizeof("allinone")) == 0)
@@ -373,8 +395,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        printf("illegal type of process\n");
-        return -2;
+        Codecode();
     }
 
     return 0;

@@ -1,35 +1,30 @@
 #pragma once
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <math.h>
-#include <float.h>
-#include <inttypes.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <ifaddrs.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdint>
+#include <cstddef>
+#include <cstdio>
+#include <cstdarg>
+#include <cmath>
+#include <cfloat>
+#include <cinttypes>
 #include <algorithm>
 #include <cassert>
-#include <arpa/inet.h>
-#include <errno.h>
-// #include <linux/netlink.h>
-// #include <linux/rtnetlink.h>
-#include <sys/ioctl.h>
-// #include <linux/wireless.h>
-#include <alloca.h>
+#include <cerrno>
 #include <string>
-
 #include <chrono>
 #include <thread>
 #include <iostream>
 
-using namespace std;
+#include <sys/ioctl.h>
+#include <alloca.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
 #define PLATFORM_WINDOWS 1
 #define PLATFORM_MAC 2
@@ -49,6 +44,9 @@ using namespace std;
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <linux/wireless.h>
 #endif
 
 #if PLATFORM == PLATFORM_WINDOWS
@@ -59,25 +57,8 @@ using namespace std;
 #define APPID 0x11223344
 #define TIME_PER_TICK 1000
 
+using namespace std;
+
 static const unsigned int appid = APPID;
 static const unsigned short port = 8800;
 // static const char* SERVER_IPADDR = "127.0.0.1";
-
-#pragma pack(1)
-typedef struct stNetMsgHeader
-{
-    uint32_t appid; /// REF: https://gafferongames.com/post/virtual_connection_over_udp/
-
-    /* REF: https://gafferongames.com/post/reliability_ordering_and_congestion_avoidance_over_udp/ */
-    uint32_t sequence; /// Sequence Numbers
-    uint32_t ack;      /// Acks
-    // TODO: uint32_t ack_bitfield;
-    /*---------------------------------------------------------------------------------------------*/
-
-} NetMsgHeader;
-#pragma pack()
-
-typedef struct stNetMsg
-{
-    char payload[MAX_PACKET_SIZE];
-} NetMsg;

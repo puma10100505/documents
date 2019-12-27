@@ -2,6 +2,11 @@
 
 using namespace yinpsoft;
 
+void RawBuffer::Initialize()
+{
+    capacity = MAX_RAW_BUFFER_SIZE;
+}
+
 void RawBuffer::Initialize(const std::string &str)
 {
     capacity = MAX_RAW_BUFFER_SIZE;

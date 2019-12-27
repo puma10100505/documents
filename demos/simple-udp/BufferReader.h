@@ -22,14 +22,13 @@ public:
     BufferReader(const std::string &data);
     ~BufferReader() {}
 
+    inline const RawBuffer &Raw() { return raw_buffer; }
+    inline RawBuffer &MutableRaw() { return raw_buffer; }
+
+    inline bool IsReadDone() { return raw_buffer.IsReadDone(); }
+
 public:
     inline uint8_t Read() { return raw_buffer.ReadByte(); }
-    // inline uint16_t Read() { return ReadUInt16(); }
-    // inline uint32_t Read() { return ReadUInt32(); }
-    // inline uint64_t Read() { return ReadUInt64(); }
-    // inline int16_t Read() { return ReadInt16(); }
-    // inline int32_t Read() { return ReadInt32(); }
-    // inline int64_t Read() { return ReadInt64(); }
 
     inline uint16_t ReadUInt16() { return ReadInternal<uint16_t>(); }
     inline uint32_t ReadUInt32() { return ReadInternal<uint32_t>(); }

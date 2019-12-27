@@ -18,7 +18,7 @@ class RawBuffer;
 class BufferWriter
 {
 public:
-    BufferWriter() {}
+    BufferWriter() { raw_buffer.Initialize(); }
     ~BufferWriter() {}
 
     inline bool IsWriteFull() const { return raw_buffer.IsWriteFull(); }
@@ -27,16 +27,7 @@ public:
     inline RawBuffer &MutableRaw() { return raw_buffer; }
 
 public:
-    inline void Write(uint8_t value) { raw_buffer.WriteByte(value); }
-    // inline void Write(uint16_t value) { WriteUInt16(value); }
-    // inline void Write(uint32_t value) { WriteUInt32(value); }
-    // inline void Write(uint64_t value) { WriteUInt64(value); }
-    // inline void Write(int16_t value) { WriteInt16(value); }
-    // inline void Write(int32_t value) { WriteInt32(value); }
-    // inline void Write(int64_t value) { WriteInt64(value); }
-
-    inline void Write(bool value) { WriteBool(value); }
-
+    inline void WriteUInt8(uint8_t value) { raw_buffer.WriteByte(value); }
     inline void WriteUInt32(uint32_t value) { WriteInternal<uint32_t>(value); }
     inline void WriteUInt64(uint64_t value) { WriteInternal<uint64_t>(value); }
     inline void WriteUInt16(uint16_t value) { WriteInternal<uint16_t>(value); }

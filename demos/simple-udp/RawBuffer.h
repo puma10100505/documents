@@ -2,7 +2,7 @@
 
 #include "Header.h"
 
-#define MAX_RAW_BUFFER_SIZE 100 * 1024
+#define MAX_RAW_BUFFER_SIZE 128 * 1024
 
 namespace yinpsoft
 {

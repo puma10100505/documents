@@ -7,9 +7,13 @@
 namespace yinpsoft
 {
 
+static const int DEFAULT_MSS = 540;
+static const int MAX_RAW_PACKAGE_SIZE = 500;
+
 #pragma pack(1)
 typedef struct stNetMessageHeader
 {
+    uint8_t cmdid;
     /* REF: https://gafferongames.com/post/virtual_connection_over_udp/ */
     uint32_t appid;
 
@@ -25,6 +29,7 @@ typedef struct stNetMessageHeader
 
     size_t Serialize(yinpsoft::BufferWriter &writer)
     {
+        writer.WriteUInt8(cmdid);
         writer.WriteUInt32(appid);
         writer.WriteUInt32(sequence);
         writer.WriteUInt32(ack);
@@ -37,6 +42,7 @@ typedef struct stNetMessageHeader
 
     void Deserialize(yinpsoft::BufferReader &reader)
     {
+        cmdid = reader.ReadUInt8();
         appid = reader.ReadUInt32();
         sequence = reader.ReadUInt32();
         ack = reader.ReadUInt32();
@@ -46,6 +52,33 @@ typedef struct stNetMessageHeader
     }
 
 } NetMessageHeader;
+
+typedef struct stRawPackage
+{
+    uint32_t fragment_idx;
+    uint32_t fragment_count;
+    size_t pkg_len;
+    uint8_t pkg_buff[MAX_RAW_PACKAGE_SIZE];
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteUInt32(fragment_idx);
+        writer.WriteUInt32(fragment_count);
+        writer.WriteUInt32(pkg_len);
+        writer.WriteByteArray(pkg_buff, sizeof(pkg_buff));
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        fragment_idx = reader.ReadUInt32();
+        fragment_count = reader.ReadUInt32();
+        pkg_len = reader.ReadUInt32();
+        reader.ReadCharArray(pkg_buff, MAX_RAW_PACKAGE_SIZE);
+    }
+} RawPackage;
+
 #pragma pack()
 
 // [Obsolete]

@@ -22,7 +22,7 @@ public:
 
 private:
     void DumpPacket(const char *packet, size_t plen);
-    void SerializeData(const char *payload, size_t len);
+    void SerializeData(const char *payload, size_t len, BufferWriter& writer);
 
 private:
     uint32_t application_id;
@@ -33,7 +33,7 @@ private:
     uint32_t remote_seq;
     uint32_t pack_size;
 
-    char request_packet[MAX_PACKET_SIZE];
-    char response_packet[MAX_PACKET_SIZE];
+    char request_packet[MAX_RAW_PACKAGE_SIZE];
+    char response_packet[MAX_RAW_PACKAGE_SIZE];
 };
 }; // namespace yinpsoft

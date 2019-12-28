@@ -18,8 +18,77 @@ RUDPServer &RUDPServer::Initialize(uint32_t appid, unsigned short port)
     return *this;
 }
 
+void RUDPServer::RecvBytesFromNetwork()
+{
+    uint8_t socket_recv_buffer[DEFAULT_MSS];
+
+    bool busy = false;
+    while (true)
+    {
+        busy = false;
+        NetAddress from_addr;
+        ssize_t recv_bytes = svr_socket.RecvFrom(from_addr, (void *)socket_recv_buffer, DEFAULT_MSS);
+
+        if (recv_bytes < 0 && errno == EAGAIN)
+        {
+            continue;
+        }
+
+        // 客户端已关闭
+        if (recv_bytes == 0)
+        {
+            printf("client is closed\n");
+            break;
+        }
+
+        // 包头大小不合法
+        if (recv_bytes < (ssize_t)sizeof(NetMessageHeader))
+        {
+            printf("packet len is too small , ret: %ld\n", recv_bytes);
+            continue;
+        }
+
+        busy = true;
+
+        // 解析网络包头
+        BufferReader netreader(socket_recv_buffer, recv_bytes);
+        NetMessageHeader header;
+        header.Deserialize(netreader);
+
+        // TODO: 网络包头信息的一些检查验证逻辑
+        // ...
+
+        if (netreader.IsReadDone() == false)
+        {
+            // 正常情况下应该还可以读取
+            RawPackage package;
+            package.Deserialize(netreader);
+            recv_queue.emplace_back(package);
+
+            printf("package push into queue, queue.len: %lu\n", recv_queue.size());
+        }
+        else
+        {
+            printf("illegal package, there is no data to read after NetMessageHeader\n");
+            continue;
+        }
+
+        if (busy == false)
+        {
+            break;
+        }
+    }
+}
+
 void RUDPServer::Tick(int fps)
 {
+    // 1. 接收并解析网络包并存入接收队列
+    RecvBytesFromNetwork();
+
+    // 2. 从发送队列将包发送到网络
+    // SendPackageToNetwork();
+
+    /* 帧数与时间相关的逻辑应该交给引擎处理, 服务器应该只负责收发包
     svr_tick = 0;
 
     std::chrono::milliseconds ms_duration(1000 / fps);
@@ -30,12 +99,12 @@ void RUDPServer::Tick(int fps)
         svr_tick++;
 
         auto tick_start = std::chrono::high_resolution_clock::now();
-        NetAddress client_addr;
 
         memset(raw_data, 0, MAX_PACKET_SIZE);
 
         //------------------------------------
         // 从网络接收对端的数据
+        NetAddress client_addr;
         ssize_t recv_bytes = svr_socket.RecvFrom(client_addr, (void *)raw_data, MAX_PACKET_SIZE);
         //------------------------------------
 
@@ -101,7 +170,8 @@ void RUDPServer::Tick(int fps)
         seq++;
 
         printf("[SERVER] - frame_elapsed: %f\n", frame_elapsed.count());
-    }
+        */
+}
 }
 
 void RUDPServer::SerializeData(const char *data, size_t len)

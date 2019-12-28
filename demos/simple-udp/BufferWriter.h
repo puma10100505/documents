@@ -35,6 +35,7 @@ public:
     inline void WriteInt32(int32_t value) { WriteInternal<int32_t>(value); }
     inline void WriteInt64(int64_t value) { WriteInternal<int64_t>(value); }
     inline void WriteInt16(int16_t value) { WriteInternal<int16_t>(value); }
+    inline void WriteByteArray(const uint8_t *data, size_t len) { raw_buffer.WriteBytes(data, len); }
 
     void WriteString(const uint8_t *str, size_t len);
     void WriteBool(bool value);

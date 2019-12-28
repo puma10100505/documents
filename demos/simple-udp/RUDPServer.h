@@ -1,9 +1,16 @@
 #pragma once
 
 #include "NetSocket.h"
+#include "NetMessage.h"
+
+#include <vector>
+
+using namespace std;
+
 namespace yinpsoft
 {
 // TODO: store client list info and calc timeout
+
 class RUDPServer
 {
 public:
@@ -17,6 +24,7 @@ public:
 private:
     void SerializeData(const char *data, size_t len);
     void DumpPacket(const char *packet, size_t plen);
+    void RecvBytesFromNetwork();
 
 private:
     NetSocket svr_socket;
@@ -25,6 +33,9 @@ private:
     uint32_t seq;
     uint32_t remote_seq;
     uint32_t pack_size;
+
+    std::vector<RawPackage> recv_queue; /// 接收队列
+    std::vector<RawPackage> send_queue; /// 发送队列
 
     std::chrono::high_resolution_clock::time_point last_client_packet_timestamp;
     char raw_data[MAX_PACKET_SIZE];

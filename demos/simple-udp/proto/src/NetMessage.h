@@ -65,7 +65,7 @@ typedef struct stRawPackage
         writer.WriteUInt32(fragment_idx);
         writer.WriteUInt32(fragment_count);
         writer.WriteUInt32(pkg_len);
-        writer.WriteByteArray(pkg_buff, sizeof(pkg_buff));
+        writer.WriteByteArray(pkg_buff, pkg_len);
 
         return writer.Raw().Length();
     }
@@ -75,7 +75,7 @@ typedef struct stRawPackage
         fragment_idx = reader.ReadUInt32();
         fragment_count = reader.ReadUInt32();
         pkg_len = reader.ReadUInt32();
-        reader.ReadCharArray(pkg_buff, MAX_RAW_PACKAGE_SIZE);
+        reader.ReadCharArray(pkg_buff, pkg_len);
     }
 } RawPackage;
 

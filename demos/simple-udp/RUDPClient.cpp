@@ -45,14 +45,14 @@ void RUDPClient::Run()
         BufferWriter writer;
         SerializeData(cli_command.c_str(), cli_command.length(), writer);
 
-        printf("before send, packet_size: %u\n", pack_size);
+        printf("before send, packet_size: %lu\n", writer.Raw().Length());
 
         // ----------------------------------
         // 向服务器发包
         ret = cli_socket.SendTo(svr_address, writer.Raw().Buffer(), writer.Raw().Length());
         // ----------------------------------
 
-        printf("after send data to server, sent_len: %d, request_packet.len: %u\n", ret, pack_size);
+        printf("after send data to server, sent_len: %d, request_packet.len: %lu\n", ret, writer.Raw().Length());
 
         // 处理服务器回包
         memset(response_packet, 0, MAX_RAW_PACKAGE_SIZE);
@@ -96,13 +96,13 @@ void RUDPClient::Run()
             DumpPacket(response_packet, recv_bytes);
 
             // 检查网络包长度是否合法
-            if (recv_bytes < (ssize_t)sizeof(NetMsgHeader))
+            if (recv_bytes < (ssize_t)sizeof(NetMessageHeader))
             {
                 printf("packet len is too small , ret: %ld\n", recv_bytes);
                 break;
             }
 
-            BufferReader reader(response_packet, recv_bytes);
+            BufferReader reader((const uint8_t *)response_packet, recv_bytes);
             yinpsoft::NetMessageHeader header;
             yinpsoft::RawPackage net_pkg;
 
@@ -113,7 +113,7 @@ void RUDPClient::Run()
             //uint32_t from_appid = *(uint32_t *)response_packet;
             if (header.appid != application_id)
             {
-                printf("this is no the packet from authenticated client, from_appid: %u\n", from_appid);
+                printf("this is no the packet from authenticated client, from_appid: %u\n", header.appid);
                 break;
             }
 
@@ -126,7 +126,8 @@ void RUDPClient::Run()
 
             uint32_t server_ack = header.ack; // *(uint32_t *)(response_packet + sizeof(uint32_t) * 2);
 
-            printf("[SERVER RESP] - %s, [ACK: %u] [Client_SEQ: %u]\n", response_packet + sizeof(NetMsgHeader), server_ack, seq);
+            printf("[SERVER RESP] - %s, [ACK: %u] [Client_SEQ: %u]\n", 
+                response_packet + sizeof(NetMessageHeader), server_ack, seq);
 
             seq++;
 
@@ -158,47 +159,23 @@ void RUDPClient::SerializeData(const char *payload, size_t len, BufferWriter &wr
     memcpy(pkg.pkg_buff, payload, len);
 
     header.Serialize(writer);
+
+    printf("1.buffer info, len: %lu, index: %lu, capacity: %lu\n", writer.Raw().Length(), 
+        writer.Raw().Position(), writer.Raw().Capacity());
+
     pkg.Serialize(writer);
 
-    /*
-    pack_size = 0;
+    printf("2.buffer info, len: %lu, index: %lu, capacity: %lu\n", writer.Raw().Length(), 
+        writer.Raw().Position(), writer.Raw().Capacity());
 
-    // pack application_id of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(application_id); i++)
-    {
-        request_packet[i] = (application_id >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(application_id);
 
-    printf("after pack appid, len: %lu, idx: %u\n", sizeof(request_packet), pack_size);
+    DumpBuffer(writer.MutableRaw());
+}
 
-    DumpPacket(request_packet, pack_size);
-
-    // pack sequence of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(seq); i++)
-    {
-        request_packet[i] = (seq >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(seq);
-
-    printf("after pack seq, len: %lu, idx: %u\n", sizeof(request_packet), pack_size);
-
-    DumpPacket(request_packet, pack_size);
-
-    // pack ack of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(seq); i++)
-    {
-        request_packet[i] = (seq >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(seq);
-
-    // pack data
-    memcpy(request_packet + pack_size, payload, len);
-    pack_size += len;
-
-    */
-    // printf("after pack seq, len: %lu, idx: %u\n", sizeof(request_packet), pack_size);
-    DumpPacket(writer.Raw().Buffer(), writer.Raw().Length());
+void RUDPClient::DumpBuffer(RawBuffer& buff)
+{
+    buff.Rewind();
+    DumpPacket((const char*)(buff.Buffer()), buff.Length());
 }
 
 void RUDPClient::DumpPacket(const char *packet, size_t plen)

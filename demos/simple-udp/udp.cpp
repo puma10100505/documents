@@ -16,6 +16,7 @@
 using namespace yinpsoft;
 // TODO: recv & send packet timeout, calc in tick
 
+/*
 int simclient()
 {
     // 1. create the udp socket
@@ -331,6 +332,7 @@ int allinone()
 
     return 0;
 }
+*/
 
 int Codecode()
 {
@@ -385,7 +387,7 @@ int main(int argc, char **argv)
     else if (strncmp(type, "allinone", sizeof("allinone")) == 0)
     {
         printf("start allinone ...\n");
-        allinone();
+        // allinone();
     }
     else if (strncmp(type, "testaddr", sizeof("testaddr")) == 0)
     {

@@ -1,6 +1,7 @@
 #pragma once
 #include "NetSocket.h"
 #include "NetAddress.h"
+#include "NetMessage.h"
 
 using namespace yinpsoft;
 
@@ -23,6 +24,7 @@ public:
 private:
     void DumpPacket(const char *packet, size_t plen);
     void SerializeData(const char *payload, size_t len, BufferWriter& writer);
+    void DumpBuffer(RawBuffer& buff);
 
 private:
     uint32_t application_id;

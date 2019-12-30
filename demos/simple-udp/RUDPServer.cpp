@@ -57,6 +57,8 @@ void RUDPServer::RecvBytesFromNetwork()
         NetMessageHeader header;
         header.Deserialize(netreader);
 
+        header.PrintString();
+
         // TODO: 网络包头信息的一些检查验证逻辑
         // ...
 
@@ -66,6 +68,8 @@ void RUDPServer::RecvBytesFromNetwork()
             RawPackage package;
             package.Deserialize(netreader);
             recv_queue.emplace_back(package);
+
+            package.PrintString();
 
             printf("package push into queue, queue.len: %lu\n", recv_queue.size());
         }
@@ -90,7 +94,6 @@ void RUDPServer::Tick(int fps)
     // 2. 从发送队列将包发送到网络
     // SendPackageToNetwork();
 }
-
 
 void RUDPServer::SerializeData(const char *data, size_t len)
 {

@@ -14,8 +14,8 @@ void RawBuffer::Initialize(const std::string &str)
     if (index + str.length() < capacity)
     {
         memcpy(buffer + index, (const void *)str.c_str(), str.length());
-        index += str.length();
-        length = index;
+        //index += str.length();
+        length = str.length();
     }
 }
 
@@ -26,8 +26,8 @@ void RawBuffer::Initialize(const uint8_t *data, size_t len)
     if (index + len < capacity)
     {
         memcpy(buffer + index, (const void *)data, len);
-        index += len;
-        length = index;
+        //index += len;
+        length = len;
     }
 }
 

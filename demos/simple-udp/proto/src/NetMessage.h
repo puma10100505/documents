@@ -51,6 +51,12 @@ typedef struct stNetMessageHeader
         payload_size = reader.ReadUInt32();
     }
 
+    void PrintString()
+    {
+        printf("cmdid: %d, appid: %u, seq: %u, ack: %u, ack_bitfield: %u, send_time_ms: %ld, payload_size: %u\n",
+               cmdid, appid, sequence, ack, ack_bitfield, send_time_ms, payload_size);
+    }
+
 } NetMessageHeader;
 
 typedef struct stRawPackage
@@ -76,6 +82,12 @@ typedef struct stRawPackage
         fragment_count = reader.ReadUInt32();
         pkg_len = reader.ReadUInt32();
         reader.ReadCharArray(pkg_buff, pkg_len);
+    }
+
+    void PrintString()
+    {
+        printf("fragment_idx: %u, fragmanet_count: %u, pkg_len: %lu, pkg_buff: %s\n",
+               fragment_idx, fragment_count, pkg_len, pkg_buff);
     }
 } RawPackage;
 

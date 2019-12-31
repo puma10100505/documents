@@ -80,11 +80,13 @@ ssize_t NetSocket::SendTo(const NetAddress &dst, const void *data, size_t data_l
     address_info.sin_addr.s_addr = htonl(dst.GetAddress());
     address_info.sin_port = htons(dst.GetPort());
 
+    printf("before send2, addr: %u, port: %u\n", dst.GetAddress(), dst.GetPort());
     ssize_t sent_bytes = ::sendto(handler, data, data_len, 0,
                                   (struct sockaddr *)&address_info, sizeof(sockaddr_in));
     if (sent_bytes != static_cast<ssize_t>(data_len))
     {
-        printf("failed to send data, the sent len is mismatch, sent: %lu, origin_len: %lu\n", sent_bytes, data_len);
+        printf("failed to send data, the sent len is mismatch, sent: %lu, origin_len: %lu, errno: %d, msg: %s, handler: %d\n",
+               sent_bytes, data_len, errno, strerror(errno), handler);
         return -2;
     }
 
@@ -105,10 +107,14 @@ ssize_t NetSocket::RecvFrom(NetAddress &src, void *data, size_t data_len)
     ssize_t recv_bytes = ::recvfrom(handler, (char *)data, data_len, 0,
                                     (struct sockaddr *)&from, &from_len);
 
+    if (recv_bytes <= 0)
+    {
+        return -2;
+    }
+
+    // 接收失败不能到这些，否则会将svraddress改为不正确的值
     src.SetAddress(ntohl(from.sin_addr.s_addr));
     src.SetPort(ntohs(from.sin_port));
-
-    // printf("after recv from client, len: %ld\n", recv_bytes);
 
     return recv_bytes;
 }

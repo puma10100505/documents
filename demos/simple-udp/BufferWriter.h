@@ -25,6 +25,8 @@ public:
 
     inline const RawBuffer &Raw() { return raw_buffer; }
     inline RawBuffer &MutableRaw() { return raw_buffer; }
+    inline size_t Length() const { return raw_buffer.Length(); }
+    inline const uint8_t *InternalBuffer() const { return raw_buffer.Buffer(); }
 
 public:
     inline void WriteUInt8(uint8_t value) { raw_buffer.WriteByte(value); }
@@ -39,7 +41,6 @@ public:
 
     void WriteString(const uint8_t *str, size_t len);
     void WriteBool(bool value);
-
     bool WriteProto(const google::protobuf::Message &msg);
 
 private:

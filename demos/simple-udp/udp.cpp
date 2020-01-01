@@ -7,6 +7,7 @@
 #include "BufferWriter.h"
 #include "BufferReader.h"
 #include "Commands.h"
+#include "GameEngine.h"
 #include <chrono>
 
 #include "proto/src/NetMessage.h"
@@ -110,7 +111,8 @@ int main(int argc, char **argv)
     if (strncmp(type, "server", sizeof("server")) == 0)
     {
         printf("start server ...\n");
-        Singleton<RUDPServer>::get_mutable_instance().Initialize(0x11223344, 8888).Tick(1);
+        Singleton<GameEngine>::get_mutable_instance().Initialize().Startup();
+
     }
     else if (strncmp(type, "client", sizeof("client")) == 0)
     {

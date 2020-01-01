@@ -24,6 +24,7 @@ typedef struct stNetMessageHeader
     int64_t send_time_ms;
     /*---------------------------------------------------------------------------------------------*/
     uint32_t payload_size; /// Content size
+    uint32_t sid;
 
     size_t ByteSize() { return sizeof(stNetMessageHeader); }
 
@@ -36,6 +37,7 @@ typedef struct stNetMessageHeader
         writer.WriteUInt32(ack_bitfield);
         writer.WriteInt64(send_time_ms);
         writer.WriteUInt32(payload_size);
+        writer.WriteUInt32(sid);
 
         return writer.Raw().Length();
     }
@@ -49,18 +51,20 @@ typedef struct stNetMessageHeader
         ack_bitfield = reader.ReadUInt32();
         send_time_ms = reader.ReadInt64();
         payload_size = reader.ReadUInt32();
+        sid = reader.ReadUInt32();
     }
 
     void PrintString()
     {
-        printf("cmdid: %d, appid: %u, seq: %u, ack: %u, ack_bitfield: %u, send_time_ms: %ld, payload_size: %u\n",
-               cmdid, appid, sequence, ack, ack_bitfield, send_time_ms, payload_size);
+        printf("cmdid: %d, appid: %u, seq: %u, ack: %u, ack_bitfield: %u, send_time_ms: %ld, payload_size: %u, sid: %u\n",
+               cmdid, appid, sequence, ack, ack_bitfield, send_time_ms, payload_size, sid);
     }
 
 } NetMessageHeader;
 
 typedef struct stRawPackage
 {
+    int64_t guid;
     uint32_t fragment_idx;
     uint32_t fragment_count;
     size_t pkg_len;
@@ -68,6 +72,7 @@ typedef struct stRawPackage
 
     size_t Serialize(yinpsoft::BufferWriter &writer)
     {
+        writer.WriteInt64(guid);
         writer.WriteUInt32(fragment_idx);
         writer.WriteUInt32(fragment_count);
         writer.WriteUInt32(pkg_len);
@@ -78,6 +83,7 @@ typedef struct stRawPackage
 
     void Deserialize(yinpsoft::BufferReader &reader)
     {
+        guid = reader.ReadInt64();
         fragment_idx = reader.ReadUInt32();
         fragment_count = reader.ReadUInt32();
         pkg_len = reader.ReadUInt32();

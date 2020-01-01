@@ -1,4 +1,7 @@
 #include "RUDPServer.h"
+#include "Commands.h"
+#include "Session.h"
+#include "Singleton.h"
 
 using namespace yinpsoft;
 
@@ -16,6 +19,126 @@ RUDPServer &RUDPServer::Initialize(uint32_t appid, unsigned short port)
     svr_socket.SetNonBlock();
 
     return *this;
+}
+
+void RUDPServer::OnRecvBytes()
+{
+    uint8_t socket_recv_buffer[DEFAULT_MSS];
+
+    NetAddress from_addr;
+    ssize_t recv_bytes = svr_socket.RecvFrom(from_addr, (void *)socket_recv_buffer, DEFAULT_MSS);
+
+    if (recv_bytes <= 0)
+    {
+        //printf("recv from client failed, recv_bytes: %ld\n", recv_bytes); 
+        return;
+    }
+
+    if (static_cast<size_t>(recv_bytes) < sizeof(NetMessageHeader))
+    {
+        printf("recv bytes is not match the header, header.len: %lu, recv.len: %ld\n", 
+            sizeof(NetMessageHeader), recv_bytes);
+        return;
+    }
+
+    NetMessageHeader header;
+    BufferReader reader(socket_recv_buffer, recv_bytes);
+    header.Deserialize(reader);
+
+    if (OnValidate(header) == false)
+    {
+        printf("validate header failed\n");
+        return ;
+    }
+
+    if (reader.IsReadDone())
+    {
+        printf("There is no data content of the protocol\n");
+        return;
+    }
+
+    RawPackage pkg;
+    pkg.Deserialize(reader);
+
+    // find a session to process rawpackage
+    Session* session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
+    if (session == nullptr && header.cmdid != ENetCommandID::NET_CMD_START) {
+        printf("not found the session by sid: %u\n", header.sid);
+        return;
+    }
+
+    if (header.cmdid == ENetCommandID::NET_CMD_START)
+    {
+        // Create a new session
+        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(pkg.guid());
+    }
+    
+    if (session == nullptr)
+    {
+        printf("get or create session failed \n");
+        return; 
+    }
+
+    session->CommandDispatcher(header.cmdid, pkg);
+    
+    printf("after command dispatcher, cmdid: %u\n", header.cmdid);
+}
+
+void RUDPServer::CommandDispatcher(uint8_t cmd, const RawPackage& pkg)
+{
+    switch (cmd)
+    {
+        case ENetCommandID::NET_CMD_QUIT:
+        {
+            HandleQuitMessage(pkg);
+            break;
+        }
+        case ENetCommandID::NET_CMD_HEARTBEAT:
+        {
+            HandleHeartbeatMessage(pkg);
+            break;
+        }
+        case ENetCommandID::NET_CMD_DATA:
+        {
+            HandleDataMessage(pkg);
+            break;
+        }
+        case ENetCommandID::NET_CMD_START:
+        {
+            HandleStartMessage(pkg);
+            break;
+        }
+        default:
+        {
+            printf("Unknown server command, cmd: %u\n", cmd);
+            break;
+        }
+    }
+}
+
+void RUDPServer::HandleQuitMessage(const RawPackage& pkg)
+{
+    printf("handle quit\n");
+}
+
+void RUDPServer::HandleHeartbeatMessage(const RawPackage& pkg)
+{
+    printf("handle heartbeat\n");
+}
+
+void RUDPServer::HandleDataMessage(const RawPackage& pkg)
+{
+    printf("handle data\n");
+}
+
+void RUDPServer::HandleStartMessage(const RawPackage& pkg)
+{
+    printf("handle start\n");
+}
+
+bool RUDPServer::OnValidate(const NetMessageHeader& header)
+{
+    return true;
 }
 
 void RUDPServer::RecvBytesFromNetwork()
@@ -86,13 +209,9 @@ void RUDPServer::RecvBytesFromNetwork()
     }
 }
 
-void RUDPServer::Tick(int fps)
+void RUDPServer::Tick()
 {
-    // 1. 接收并解析网络包并存入接收队列
-    RecvBytesFromNetwork();
-
-    // 2. 从发送队列将包发送到网络
-    // SendPackageToNetwork();
+    OnRecvBytes();
 }
 
 void RUDPServer::SerializeData(const char *data, size_t len)

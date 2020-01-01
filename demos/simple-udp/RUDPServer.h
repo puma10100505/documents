@@ -11,20 +11,32 @@ namespace yinpsoft
 {
 // TODO: store client list info and calc timeout
 
-class RUDPServer
+class RUDPServer final
 {
 public:
     RUDPServer() {}
     ~RUDPServer() {}
 
     RUDPServer &Initialize(uint32_t appid, unsigned short port);
-    void Tick(int fps = 30);
+    void Tick();
     void Stop();
 
 private:
+    // [Obsolete]
     void SerializeData(const char *data, size_t len);
     void DumpPacket(const char *packet, size_t plen);
+
+    // [Obsolete]
     void RecvBytesFromNetwork();
+    bool OnValidate(const NetMessageHeader& header);
+    void CommandDispatcher(uint8_t cmd, const RawPackage& pkg);
+    void OnRecvBytes();
+
+private:
+    void HandleQuitMessage(const RawPackage& pkg);
+    void HandleHeartbeatMessage(const RawPackage& pkg);
+    void HandleDataMessage(const RawPackage& pkg);
+    void HandleStartMessage(const RawPackage& pkg);
 
 private:
     NetSocket svr_socket;

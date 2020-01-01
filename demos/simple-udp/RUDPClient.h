@@ -67,6 +67,7 @@ private:
     void PerformQuit();
     void PerformHeartbeat();
     void PerformData();
+    void PerformStart();
 
 private:
     uint32_t application_id;

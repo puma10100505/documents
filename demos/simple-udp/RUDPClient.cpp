@@ -74,6 +74,20 @@ void RUDPClient::PerformHeartbeat()
     AddClientPackage(writer);
 }
 
+void RUDPClient::PerformStart()
+{
+    NetMessageHeader header;
+    header.cmdid = ENetCommandID::NET_CMD_START;
+    header.appid = application_id;
+
+    BufferWriter writer;
+    size_t len = header.Serialize(writer);
+
+    printf("after serialize len: %lu\n", len);
+
+    AddClientPackage(writer);
+}
+
 void RUDPClient::PerformData()
 {
     BufferWriter writer;
@@ -116,6 +130,11 @@ void RUDPClient::NetCommandDispatcher(const int32_t cmd)
         PerformData();
         break;
     }
+    case ENetCommandID::NET_CMD_START:
+    {
+        PerformStart();
+        break;
+    }
     default:
     {
         printf("illegal cmdid: %d\n", cmd);
@@ -130,16 +149,25 @@ void RUDPClient::OnInput()
     getline(std::cin, input_str);
     std::transform(input_str.begin(), input_str.end(), input_str.begin(), ::tolower);
 
-    if ("quit" == input_str)
+    do 
     {
-        local_command_list.push_back(ENetCommandID::NET_CMD_QUIT);
-    }
-    else
-    {
+        if ("quit" == input_str)
+        {
+            local_command_list.push_back(ENetCommandID::NET_CMD_QUIT);
+            break;
+        }
+
+        if ("start" == input_str)
+        {
+            local_command_list.push_back(ENetCommandID::NET_CMD_START);
+            break;
+        }
+
         command_params = "";
         local_command_list.push_back(ENetCommandID::NET_CMD_DATA);
         command_params = input_str;
-    }
+        
+    } while(false);
 
     // TODO: other commands
 

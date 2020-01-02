@@ -1,0 +1,1 @@
+g++ -o $1 $1.cpp -I../include -I/usr/local/include -L/usr/local/lib -L../libs/ -lode -ldrawstuff -lGL -lpthread -lX11 -lGLU

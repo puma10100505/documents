@@ -31,6 +31,7 @@ find_library(lib_boost_chrono boost_chrono ${solution_root}/libs)
 find_library(lib_boost_log boost_log ${solution_root}/libs)
 find_library(lib_boost_log_setup boost_log_setup ${solution_root}/libs)
 find_library(lib_ode ode /usr/local/lib)
+find_library(lib_drawstuff drawstuff ${solution_root}/libs)
 
 add_executable(
     ${bin_name}
@@ -44,6 +45,7 @@ target_link_libraries(
     ${lib_boost_log}
     ${lib_boost_log_setup}
     ${lib_ode}
+    ${lib_drawstuff}
     -lstdc++
     -lpthread
     -lrt

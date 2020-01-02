@@ -23,12 +23,14 @@ include_directories(
     ${solution_root}/include
     ${solution_root}/proto
     ${solution_root}/src
+    /usr/local/include
 )
 
 find_library(lib_pb protobuf ${solution_root}/libs)
 find_library(lib_boost_chrono boost_chrono ${solution_root}/libs)
 find_library(lib_boost_log boost_log ${solution_root}/libs)
 find_library(lib_boost_log_setup boost_log_setup ${solution_root}/libs)
+find_library(lib_ode ode /usr/local/lib)
 
 add_executable(
     ${bin_name}
@@ -41,6 +43,7 @@ target_link_libraries(
     ${lib_boost_chrono}
     ${lib_boost_log}
     ${lib_boost_log_setup}
+    ${lib_ode}
     -lstdc++
     -lpthread
     -lrt

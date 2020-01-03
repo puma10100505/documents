@@ -45,8 +45,11 @@ static void step(int pause) {
     flag = 0; 
     dsSetSphereQuality(3);
     dSpaceCollide(space, 0, &nearCallback);
+   
 
     dWorldStep(world, 0.01);
+
+    // clear container of collision points
     dJointGroupEmpty(contactgroup);
        
 
@@ -56,13 +59,24 @@ static void step(int pause) {
         dsSetColor(0.0f, 0.0f, 1.0f);
     }
 
+    dsSetColor(229/255, 68/255, 34/255);
+
     pos = dBodyGetPosition(ball.body);
     R = dBodyGetRotation(ball.body);
     dsDrawSphere(pos, R, radius);
+
+    // printf("x: %f, y: %f, z: %f\n", 
+    //     pos[dVec3Element::dV3E_X], pos[dVec3Element::dV3E_Y], 
+    //     pos[dVec3Element::dV3E_Z]);
+
+    float new_xyz[3] = {pos[dVec3Element::dV3E_X], pos[dVec3Element::dV3E_Y] - 5.0f, 
+        pos[dVec3Element::dV3E_Z]};
+    float hpr[3] = {90.0f, 10.0f, 0.0f};
+    dsSetViewpoint(new_xyz, hpr);    
 }
 
 static void start() {
-    static float xyz[3] = {0.0f, -10.0f, 1.0f};
+    static float xyz[3] = {0.0f, -5.0f, 1.0f};
     static float hpr[3] = {90.0f, 10.0f, 0.0f};
     dsSetViewpoint(xyz, hpr);
 }
@@ -77,7 +91,7 @@ static void prepDrawstuff() {
 }
 
 int main(int argc, char** argv) {
-    dReal x0 = 0.0f, y0 = 0.0f, z0 = 5.0f;
+    dReal x0 = 0.0f, y0 = 0.0f, z0 = 15.0f;
     dMass m1;
 
     prepDrawstuff();
@@ -85,6 +99,8 @@ int main(int argc, char** argv) {
     dInitODE();
     world = dWorldCreate();
     space = dHashSpaceCreate(0);
+
+    //container of collision points
     contactgroup = dJointGroupCreate(0);
     dWorldSetGravity(world, 0, 0, -9.8f);
     ground = dCreatePlane(space, 0, 0, 1, 0);

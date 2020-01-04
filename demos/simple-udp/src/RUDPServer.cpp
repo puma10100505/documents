@@ -85,10 +85,28 @@ void RUDPServer::OnRecvBytes()
     }
 
     session->SetClientAddress(from_addr);
+
+    ssize_t ret = 0;
+    // -------------------------- for test
+    // NetMessageHeader header2;
+    // header2.cmdid = ENetCommandID::NET_CMD_START;
+    // header2.appid = appid;
+
+    // StartResponse resp;
+    // resp.guid = pkg.guid;
+    // resp.sid = 1;
+
+    // BufferWriter writer;
+    // header2.Serialize(writer);
+    // resp.Serialize(writer);
+
+    // ret = svr_socket.SendTo(from_addr, writer.InternalBuffer(), writer.Length());
+    // --------------------------
+
     session->CommandDispatcher(header.cmdid, pkg);
 
-    printf("after command dispatcher, cmdid: %u, current session_num: %d\n", header.cmdid,
-           Singleton<SessionManager>::get_mutable_instance().Count());
+    printf("after command dispatcher, cmdid: %u, current session_num: %d, ret: %ld\n", header.cmdid,
+           Singleton<SessionManager>::get_mutable_instance().Count(), ret);
 }
 
 bool RUDPServer::OnValidate(const NetMessageHeader &header)

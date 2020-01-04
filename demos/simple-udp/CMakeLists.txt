@@ -26,6 +26,11 @@ include_directories(
     /usr/local/include
 )
 
+link_directories(
+    /usr/local/lib
+    ${solution_root}/libs
+)
+
 find_library(lib_pb protobuf ${solution_root}/libs /usr/local/lib)
 find_library(lib_boost_chrono boost_chrono ${solution_root}/libs /usr/local/lib)
 find_library(lib_boost_log boost_log ${solution_root}/libs /usr/local/lib)
@@ -49,6 +54,9 @@ target_link_libraries(
     -lstdc++
     -lpthread
     -lrt
+    -lGL 
+    -lX11 
+    -lGLU
 )
 
 install(PROGRAMS ${CMAKE_BINARY_DIR}/${bin_name} DESTINATION ${solution_root}/bin)

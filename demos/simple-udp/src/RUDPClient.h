@@ -23,8 +23,6 @@ typedef boost::interprocess::vector<int, ShmAllocator> shm_vector;
 namespace yinpsoft
 {
 
-static std::unordered_map<std::string, ENetCommandID> COMMAND_MAP;
-
 typedef struct stClientPackage
 {
     uint8_t buff[MAX_RAW_PACKAGE_SIZE];
@@ -34,7 +32,12 @@ typedef struct stClientPackage
 class RUDPClient final
 {
 public:
-    RUDPClient() {}
+    RUDPClient() 
+    {
+        command_map["quit"] = ENetCommandID::NET_CMD_QUIT;
+        command_map["start"] = ENetCommandID::NET_CMD_START;
+    }
+
     ~RUDPClient() { shared_memory_object::remove("SHM_COMMAND_LIST"); }
 
     RUDPClient &Initialize(uint32_t appid, unsigned int address,
@@ -92,5 +95,6 @@ private:
     std::vector<RawPackage> pending_recv_list;
 
     std::vector<ENetCommandID> local_command_list;
+    std::unordered_map<std::string, ENetCommandID> command_map;
 };
 }; // namespace yinpsoft

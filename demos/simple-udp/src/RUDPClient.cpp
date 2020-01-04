@@ -151,17 +151,11 @@ void RUDPClient::OnInput()
 
     do 
     {
-        if ("quit" == input_str)
+        if (command_map.find(input_str) != command_map.end()) 
         {
-            local_command_list.push_back(ENetCommandID::NET_CMD_QUIT);
+            local_command_list.push_back(command_map[input_str]);
             break;
-        }
-
-        if ("start" == input_str)
-        {
-            local_command_list.push_back(ENetCommandID::NET_CMD_START);
-            break;
-        }
+        }        
 
         command_params = "";
         local_command_list.push_back(ENetCommandID::NET_CMD_DATA);
@@ -173,15 +167,6 @@ void RUDPClient::OnInput()
 
     printf("after push command: %s, command count: %lu\n", input_str.c_str(), local_command_list.size());
 }
-
-// void RUDPClient::NetCommandDispacher(const std::string &command)
-// {
-//     ENetCommandID cmd = ENetCommandID::NET_CMD_UNDFINED;
-
-//     cmd = COMMAND_MAP[command];
-
-//     NetCommandDispacher(cmd);
-// }
 
 void RUDPClient::OnCommandDispatch()
 {

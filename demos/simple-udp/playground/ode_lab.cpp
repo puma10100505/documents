@@ -10,38 +10,45 @@ using namespace chrono;
 
 #define DENSITY (.5f)
 
-static dWorldID world;  // hold the rigidbodies for display
-static dSpaceID space;  // hold the geometries for collision detection
+#define MAX_ROBOTS_NUM 16*16
 
-static dGeomID ground;
-static dJointGroupID contactgroup;
-
-static int flag = 0;
-dsFunctions fn;
-
-const dReal radius = 0.2;
-const dReal mass = .5f;
-static const dReal min_dist = 5.0f;
-
-static const dReal sides[3] = {2.0f, 2.0f, 2.0f};
-static const dReal sides_robot[3] = {1.0f, 1.0f, 1.0f};
-static const dReal roll_power = 250.0f;
-static const dReal push_power = 50.0f;
+enum COLOR_RGB {
+    R = 0,
+    G = 1,
+    B = 2
+};
 
 typedef struct {
     dBodyID body;
     dGeomID geom;
-} MyObject;
-
-MyObject box;
-MyObject robots[256];
+} GameObject;
 
 typedef struct {
     dBodyID body;
     high_resolution_clock::time_point event_time;
 } ColorItem;
 
+static dWorldID world;  // hold the rigidbodies for display
+static dSpaceID space;  // hold the geometries for collision detection
+static dGeomID ground;
+static dJointGroupID contactgroup;
+static int flag = 0;
+static dsFunctions fn;
+static const dReal radius = 0.2;
+static const dReal min_dist = 5.0f;
+static const dReal sides[3] = {2.0f, 2.0f, 2.0f};
+static const dReal sides_robot[3] = {1.0f, 1.0f, 1.0f};
+static const dReal roll_power = 250.0f;
+static const dReal push_power = 50.0f;
+static const dReal jump_power = 10;
+static const dReal main_color[3] = {1.0 - 245.0f/255.0f, 1.0 - 140.0f/255.0f, 1.0 - 34.0f/255.0f};
 static std::unordered_map<dBodyID, high_resolution_clock::time_point> color_list;
+static GameObject box;
+static GameObject robots[MAX_ROBOTS_NUM];
+
+static const int WIDTH = 1680;
+static const int HEIGHT = 1050;
+
 
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
     const int N = 10;
@@ -91,27 +98,6 @@ static void findNearestBoxes() {
     }
 }
 
-// static bool IsInColorList(dBodyID body_id) {
-//     bool ret = false;
-//     for (const ColorItem& item: color_list) {
-//         if (item.body == body_id) {
-//             ret = true;
-//             break;
-//         }
-//     }
-
-//     return ret;
-// }
-
-// static const ColorItem* GetStartColorTimeponit(dBodyID body_id) {
-//     for (const ColorItem& item: color_list) {
-//         if (item.body == body_id) {
-//             return &item;
-//         }
-//     }
-
-//     return nullptr;
-// }
 
 static void step(int pause) {
     const dReal *pos, *R;
@@ -120,14 +106,7 @@ static void step(int pause) {
 
     dWorldStep(world, 0.01);
     dJointGroupEmpty(contactgroup);
-       
-
-    if (flag == 0) {
-        dsSetColor(1.0, 0.0f, 0.0f);
-    } else {
-        dsSetColor(0.0f, 0.0f, 1.0f);
-    }
-
+    
     dsSetColor(1.0 - 245.0f/255.0f, 1.0 - 140.0f/255.0f, 1.0 - 34.0f/255.0f);
 
     pos = dBodyGetPosition(box.body);
@@ -190,28 +169,41 @@ static void start() {
 }
 
 static void command(int cmd) {
-    dBodySetForce(box.body, 0.0f, 0.0f, 0.0f);
-    dBodySetTorque(box.body, 0.0f, 0.0f, 0.0f);
+    // dBodySetForce(box.body, 0.0f, 0.0f, 0.0f);
+    // dBodySetTorque(box.body, 0.0f, 0.0f, 0.0f);
+    const dReal* relpos = dBodyGetPosition(box.body);
     switch (cmd)
     {
     case 'w':
-        dBodySetTorque(box.body, 0.0f, -roll_power, 0.0f);
+        // dBodySetTorque(box.body, 0.0f, -roll_power, 0.0f);
         // dBodySetForce(box.body, -roll_power, 0.0f, 0.0f);
+        dBodyAddForceAtPos(box.body, -roll_power, 0.0f, 0.0f, relpos[0], relpos[1], relpos[2] + 2.0f);
         break;
     case 's':
 
-        dBodySetTorque(box.body, 0.0f, roll_power, 0.0f);
+        // dBodySetTorque(box.body, 0.0f, roll_power, 0.0f);
         // dBodySetForce(box.body, roll_power, 0.0f, 0.0f);
+        dBodyAddForceAtPos(box.body, roll_power, 0.0f, 0.0f, relpos[0], relpos[1], relpos[2] + 2.0f);
         break;
     
     case 'a':
-        dBodySetTorque(box.body, roll_power, 0.0f, 0.0f);
+        // dBodySetTorque(box.body, roll_power, 0.0f, 0.0f);
         // dBodySetForce(box.body, 0.0f, -roll_power, 0.0f);
+        dBodyAddForceAtPos(box.body, 0.0f, -roll_power, 0.0f, relpos[0], relpos[1], relpos[2] + 2.0f);
         break;
 
     case 'd':
-        dBodySetTorque(box.body, -roll_power, 0.0f, 0.0f);
-        // dBodySetForce(box.body, 0.0f, roll_power, 0.0f);
+        //dBodySetTorque(box.body, -roll_power, 0.0f, 0.0f);
+        // dBodySetForce(box.body, 0.0f, roll_power, 0.0f);        
+        dBodyAddForceAtPos(box.body, 0.0f, roll_power, 0.0f, relpos[0], relpos[1], relpos[2] + 2.0f);
+        break;
+
+    case 'q':
+        dBodyAddForce(box.body, 0, 0, jump_power*10);
+        break;
+
+    case 'e':
+        dBodyAddForce(box.body, 0, 0, -jump_power*10);
         break;
 
     default:
@@ -228,7 +220,7 @@ static void prepDrawstuff() {
     fn.path_to_textures = "../resources/ode/textures";
 }
 
-int main(int argc, char** argv) {
+static void InitWorld(int argc, char** argv) {
     dReal x0 = 0.0f, y0 = 0.0f, z0 = 10.0f;
     dMass m1;
 
@@ -253,11 +245,10 @@ int main(int argc, char** argv) {
     dBodySetPosition(box.body, x0, y0, z0);
     box.geom = dCreateBox(space, sides[0], sides[1], sides[2]);
     dGeomSetBody(box.geom, box.body); // bind the body with geom
-    
-    
+        
     // create robots
     int count = 0;
-    memset(robots, 0, sizeof(MyObject) * 256);
+    memset(robots, 0, sizeof(GameObject) * 256);
     for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
             dMass robot_mass;
@@ -280,9 +271,14 @@ int main(int argc, char** argv) {
 
     printf("%d robot box created\n", count);
 
-    dsSimulationLoop(argc, argv, 1680, 1080, &fn);
+    dsSimulationLoop(argc, argv, WIDTH, HEIGHT, &fn);
     dWorldDestroy(world);
 
     dCloseODE();
+}
+
+int main(int argc, char** argv) {
+    
+    InitWorld(argc, argv);
     return 0;
 }

@@ -17,6 +17,8 @@
 #include "boost/interprocess/containers/vector.hpp"
 #include "boost/interprocess/allocators/allocator.hpp"
 
+#include "GameClient.h"
+
 using namespace yinpsoft;
 using namespace boost::interprocess;
 
@@ -91,10 +93,10 @@ int Codecode()
     return 0;
 }
 
-void InitCommandMap()
-{
-    COMMAND_MAP["quit"] = ENetCommandID::NET_CMD_QUIT;
-}
+// void InitCommandMap()
+// {
+//     COMMAND_MAP["quit"] = ENetCommandID::NET_CMD_QUIT;
+// }
 
 int main(int argc, char **argv)
 {
@@ -104,38 +106,25 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    InitCommandMap();
+    // InitCommandMap();
 
     char *type = argv[1];
 
-    if (strncmp(type, "server", sizeof("server")) == 0)
+    if (strncmp(type, "svr", sizeof("svr")) == 0 || strncmp(type, "server", sizeof("server")) == 0)
     {
         printf("start server ...\n");
         Singleton<GameEngine>::get_mutable_instance().Initialize().Startup();
     }
-    else if (strncmp(type, "client", sizeof("client")) == 0)
+    else if (strncmp(type, "cli", sizeof("cli")) == 0 || strncmp(type, "client", sizeof("client")) == 0)
+    {
+        printf("start client ...\n");
+        InitWorld(argc, argv);
+    }
+    else if (strncmp(type, "raw-cli", sizeof("raw-cli")) == 0) 
     {
         printf("start client ...\n");
         Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
     }
-    else if (strncmp(type, "gm", sizeof("gm")) == 0)
-    {
-        printf("GM start ...\n");
-        InitShmVector();
-        AcceptStdInput();
-    }
-    else if (strncmp(type, "testaddr", sizeof("testaddr")) == 0)
-    {
-        NetAddress addr(9, 134, 22, 167, 8888);
-        printf("IP: %u.%u.%u.%u, PORT: %u\n", addr.GetA(),
-               addr.GetB(), addr.GetC(), addr.GetD(), addr.GetPort());
-    }
-    else
-    {
-        Codecode();
-    }
-
-    DestroyShmVector();
 
     return 0;
 }

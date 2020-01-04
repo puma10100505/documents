@@ -1,7 +1,7 @@
 #include "RUDPClient.h"
 #include "Commands.h"
 #include "NetMessage.h"
-#include "boost/thread.hpp"
+// #include "boost/thread.hpp"
 
 using namespace yinpsoft;
 
@@ -24,13 +24,13 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
     interval = interval_ms;
     client_tick = 0;
 
-    if (enable_shm == true)
-    {
-        shared_memory_object::remove("SHM_COMMAND_LIST");
-        managed_shared_memory segment(open_or_create, "SHM_COMMAND_LIST", 65536);
-        const ShmAllocator alloc_inst(segment.get_segment_manager());
-        shm_command_list = segment.find_or_construct<shm_vector>("COMMAND_LIST")(alloc_inst);
-    }
+    // if (enable_shm == true)
+    // {
+    //     shared_memory_object::remove("SHM_COMMAND_LIST");
+    //     managed_shared_memory segment(open_or_create, "SHM_COMMAND_LIST", 65536);
+    //     const ShmAllocator alloc_inst(segment.get_segment_manager());
+    //     shm_command_list = segment.find_or_construct<shm_vector>("COMMAND_LIST")(alloc_inst);
+    // }
 
     printf("finish client init\n");
 
@@ -83,9 +83,20 @@ void RUDPClient::PerformStart()
     BufferWriter writer;
     size_t len = header.Serialize(writer);
 
+    RawPackage raw;
+    raw.guid = 191956428;
+    raw.Serialize(writer);
+
     printf("after serialize len: %lu\n", len);
 
     AddClientPackage(writer);
+}
+
+void RUDPClient::ResolveStart(const RawPackage &pkg)
+{
+    // TODO: 处理START回包
+    printf("entry of ResolveStart, \n");
+    // pkg.PrintString();
 }
 
 void RUDPClient::PerformData()
@@ -149,19 +160,19 @@ void RUDPClient::OnInput()
     getline(std::cin, input_str);
     std::transform(input_str.begin(), input_str.end(), input_str.begin(), ::tolower);
 
-    do 
+    do
     {
-        if (command_map.find(input_str) != command_map.end()) 
+        if (command_map.find(input_str) != command_map.end())
         {
             local_command_list.push_back(command_map[input_str]);
             break;
-        }        
+        }
 
         command_params = "";
         local_command_list.push_back(ENetCommandID::NET_CMD_DATA);
         command_params = input_str;
-        
-    } while(false);
+
+    } while (false);
 
     // TODO: other commands
 
@@ -172,19 +183,19 @@ void RUDPClient::OnCommandDispatch()
 {
     if (enable_shm == true)
     {
-        if (shm_command_list == nullptr)
-        {
-            printf("not found command list\n");
-            return;
-        }
+        // if (shm_command_list == nullptr)
+        // {
+        //     printf("not found command list\n");
+        //     return;
+        // }
 
-        for (auto itr = shm_command_list->begin(); itr != shm_command_list->end(); ++itr)
-        {
-            int32_t cli_command = *itr;
-            NetCommandDispatcher(cli_command);
-            printf("after dispatch command: %d, pending_send_list.size: %lu\n",
-                   *itr, pending_send_list.size());
-        }
+        // for (auto itr = shm_command_list->begin(); itr != shm_command_list->end(); ++itr)
+        // {
+        //     int32_t cli_command = *itr;
+        //     NetCommandDispatcher(cli_command);
+        //     printf("after dispatch command: %d, pending_send_list.size: %lu\n",
+        //            *itr, pending_send_list.size());
+        // }
     }
     else
     {
@@ -220,7 +231,7 @@ void RUDPClient::OnSend()
         ssize_t ret = cli_socket.SendTo(svr_address, pkg.buff, pkg.len);
         // ----------------------------------
 
-        printf("after send, ret: %ld\n", ret);
+        printf("after send, ret: %ld, address: %s, port: %u\n", ret, svr_address.ToString().c_str(), svr_address.GetPort());
         itr = pending_send_list.erase(itr);
 
         if (ret > 0)
@@ -235,11 +246,6 @@ void RUDPClient::OnSend()
 
 bool RUDPClient::OnValidate(const NetMessageHeader &header)
 {
-    // if (header.appid != application_id)
-    // {
-    //     return false;
-    // }
-
     return true;
 }
 
@@ -247,16 +253,28 @@ void RUDPClient::OnRecv()
 {
     uint8_t recv_buff[MAX_RAW_PACKAGE_SIZE];
 
+    ssize_t recv_bytes = 0;
+    //while (true)
+    // {
+    // printf("prepare recvfrom: %s, %u\n", svr_address.ToString().c_str(), svr_address.GetPort());
     // ----------------------------------
     // 接收服务器回包
-    ssize_t recv_bytes = cli_socket.RecvFrom(svr_address, (void *)recv_buff, MAX_RAW_PACKAGE_SIZE);
+    recv_bytes = cli_socket.RecvFrom(svr_address, (void *)recv_buff, MAX_RAW_PACKAGE_SIZE);
     // ----------------------------------
 
     if (recv_bytes <= 0)
     {
-        printf("recv failed, recv_bytes: %ld\n", recv_bytes);
+        if (errno == EAGAIN)
+        {
+            // 非阻塞SOCKET当返回值为EAGAIN的时候要再次尝试接收
+            // continue;
+        }
+
+        printf("recv failed, recv_bytes: %ld, addr: %u, port: %u, errno: %d, msg: %s\n",
+               recv_bytes, svr_address.GetAddress(), svr_address.GetPort(), errno, strerror(errno));
         return;
     }
+    //}
 
     BufferReader reader((const uint8_t *)recv_buff, recv_bytes);
     NetMessageHeader header;
@@ -270,18 +288,31 @@ void RUDPClient::OnRecv()
 
     RawPackage pkg;
     pkg.Deserialize(reader);
-    pending_recv_list.emplace_back(pkg);
+    ResponsePackage resp;
+    resp.cmd = header.cmdid;
+    resp.package = pkg;
+    pending_recv_list.emplace_back(std::move(resp));
 }
 
 void RUDPClient::OnUpdate()
 {
     for (int32_t i = 0; i < static_cast<int32_t>(pending_recv_list.size()); i++)
     {
-        const RawPackage &pkg = pending_recv_list[i];
+        const ResponsePackage &pkg = pending_recv_list[i];
+
+        switch (pkg.cmd)
+        {
+        case ENetCommandID::NET_CMD_START:
+            ResolveStart(pkg.package);
+            break;
+        default:
+            break;
+        }
 
         // Logic Process...
         printf("fragment_idx: %u, fragment_count: %u, pkg_len: %lu, pkg_content: %s\n",
-               pkg.fragment_idx, pkg.fragment_count, pkg.pkg_len, pkg.pkg_buff);
+               pkg.package.fragment_idx, pkg.package.fragment_count,
+               pkg.package.pkg_len, pkg.package.pkg_buff);
     }
 
     pending_recv_list.clear();
@@ -344,5 +375,5 @@ void RUDPClient::DumpPacket(const char *packet, size_t plen)
 void RUDPClient::Stop()
 {
     cli_socket.Close();
-    shared_memory_object::remove("SHM_COMMAND_LIST");
+    // shared_memory_object::remove("SHM_COMMAND_LIST");
 }

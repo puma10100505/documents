@@ -104,11 +104,13 @@ ssize_t NetSocket::RecvFrom(NetAddress &src, void *data, size_t data_len)
     struct sockaddr_in from;
     socklen_t from_len = sizeof(from);
 
+    // printf("before recvfrom addr: %s, port: %u, handler: %d\n", src.ToString().c_str(), src.GetPort(), handler);
     ssize_t recv_bytes = ::recvfrom(handler, (char *)data, data_len, 0,
                                     (struct sockaddr *)&from, &from_len);
 
     if (recv_bytes <= 0)
     {
+        // printf("after recv server data, recv_bytes: %ld\n", recv_bytes);
         return -2;
     }
 

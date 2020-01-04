@@ -2,44 +2,51 @@
 
 #include "Header.h"
 
-namespace yinpsoft 
+namespace yinpsoft
 {
-    class NetAddress final
+class NetAddress final
+{
+public:
+    NetAddress() {}
+    NetAddress(unsigned char a, unsigned char b, unsigned char c,
+               unsigned char d, unsigned short p);
+    NetAddress(unsigned int addr, unsigned short p);
+    NetAddress(unsigned short p);
+
+    unsigned char GetA() const;
+    unsigned char GetB() const;
+    unsigned char GetC() const;
+    unsigned char GetD() const;
+
+    inline unsigned short GetPort() const
     {
-    public:
-        NetAddress() {}
-        NetAddress(unsigned char a, unsigned char b, unsigned char c,
-                unsigned char d, unsigned short p);
-        NetAddress(unsigned int addr, unsigned short p);
-        NetAddress(unsigned short p);
+        return port;
+    }
 
-        unsigned char GetA() const;
-        unsigned char GetB() const;
-        unsigned char GetC() const;
-        unsigned char GetD() const;
+    inline unsigned int GetAddress() const
+    {
+        return address;
+    }
 
-        inline unsigned short GetPort() const
-        {
-            return port;
-        }
+    inline void SetAddress(unsigned int addr)
+    {
+        address = addr;
+    }
 
-        inline unsigned int GetAddress() const
-        {
-            return address;
-        }
+    inline void SetPort(unsigned short p)
+    {
+        port = p;
+    }
 
-        inline void SetAddress(unsigned int addr)
-        {
-            address = addr;
-        }
+    inline const std::string &ToString()
+    {
+        address_desc = "";
+        return address_desc.append(to_string(GetA())).append(".").append(to_string(GetB())).append(".").append(to_string(GetC())).append(".").append(to_string(GetD()));
+    }
 
-        inline void SetPort(unsigned short p)
-        {
-            port = p;
-        }
-
-    private:
-        unsigned int address;
-        unsigned short port;
-    };
+private:
+    unsigned int address;
+    unsigned short port;
+    std::string address_desc;
 };
+}; // namespace yinpsoft

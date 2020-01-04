@@ -7,18 +7,18 @@
 #include <chrono>
 #include <vector>
 
-#include "boost/interprocess/managed_shared_memory.hpp"
-#include "boost/interprocess/containers/vector.hpp"
-#include "boost/interprocess/allocators/allocator.hpp"
+// #include "boost/interprocess/managed_shared_memory.hpp"
+// #include "boost/interprocess/containers/vector.hpp"
+// #include "boost/interprocess/allocators/allocator.hpp"
 
 using namespace std;
 using namespace yinpsoft;
-using namespace boost::interprocess;
+// using namespace boost::interprocess;
 
 #define MAX_TRY_TIMES_FOR_SERVER_RESP 10
 
-typedef boost::interprocess::allocator<int, managed_shared_memory::segment_manager> ShmAllocator;
-typedef boost::interprocess::vector<int, ShmAllocator> shm_vector;
+// typedef boost::interprocess::allocator<int, managed_shared_memory::segment_manager> ShmAllocator;
+// typedef boost::interprocess::vector<int, ShmAllocator> shm_vector;
 
 namespace yinpsoft
 {
@@ -29,16 +29,25 @@ typedef struct stClientPackage
     size_t len;
 } ClientPackage;
 
+typedef struct stResponsePackage
+{
+    uint8_t cmd;
+    RawPackage package;
+} ResponsePackage;
+
 class RUDPClient final
 {
 public:
-    RUDPClient() 
+    RUDPClient()
     {
         command_map["quit"] = ENetCommandID::NET_CMD_QUIT;
         command_map["start"] = ENetCommandID::NET_CMD_START;
     }
 
-    ~RUDPClient() { shared_memory_object::remove("SHM_COMMAND_LIST"); }
+    ~RUDPClient()
+    {
+        // shared_memory_object::remove("SHM_COMMAND_LIST");
+    }
 
     RUDPClient &Initialize(uint32_t appid, unsigned int address,
                            unsigned short port, bool shm = false,
@@ -72,6 +81,8 @@ private:
     void PerformData();
     void PerformStart();
 
+    void ResolveStart(const RawPackage &pkg);
+
 private:
     uint32_t application_id;
     NetSocket cli_socket;
@@ -84,16 +95,12 @@ private:
 
     bool enable_shm = false;
 
-    shm_vector *shm_command_list = nullptr;
+    // shm_vector *shm_command_list = nullptr;
     std::string command_params;
-
-    // char request_packet[MAX_RAW_PACKAGE_SIZE];
-    // char response_packet[MAX_RAW_PACKAGE_SIZE];
 
     // 客户端发送队列
     std::vector<ClientPackage> pending_send_list;
-    std::vector<RawPackage> pending_recv_list;
-
+    std::vector<ResponsePackage> pending_recv_list;
     std::vector<ENetCommandID> local_command_list;
     std::unordered_map<std::string, ENetCommandID> command_map;
 };

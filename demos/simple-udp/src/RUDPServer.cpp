@@ -63,79 +63,32 @@ void RUDPServer::OnRecvBytes()
     // find a session to process rawpackage
     Session *session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
 
+    // 在非START协议的情况下SESSION为空是异常情况
     if (session == nullptr && header.cmdid != ENetCommandID::NET_CMD_START)
     {
         printf("not found the session by sid: %u\n", header.sid);
         return;
     }
 
+    // 如果是START则新创建一个SESSION
     if (header.cmdid == ENetCommandID::NET_CMD_START)
     {
         // Create a new session
-        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(pkg.guid);
+        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(pkg.guid, this);
     }
 
+    // 这里SESSION为空是异常情况
     if (session == nullptr)
     {
         printf("get or create session failed \n");
         return;
     }
 
+    session->SetClientAddress(from_addr);
     session->CommandDispatcher(header.cmdid, pkg);
 
-    printf("after command dispatcher, cmdid: %u\n", header.cmdid);
-}
-
-void RUDPServer::CommandDispatcher(uint8_t cmd, const RawPackage &pkg)
-{
-    switch (cmd)
-    {
-    case ENetCommandID::NET_CMD_QUIT:
-    {
-        HandleQuitMessage(pkg);
-        break;
-    }
-    case ENetCommandID::NET_CMD_HEARTBEAT:
-    {
-        HandleHeartbeatMessage(pkg);
-        break;
-    }
-    case ENetCommandID::NET_CMD_DATA:
-    {
-        HandleDataMessage(pkg);
-        break;
-    }
-    case ENetCommandID::NET_CMD_START:
-    {
-        HandleStartMessage(pkg);
-        break;
-    }
-    default:
-    {
-        printf("Unknown server command, cmd: %u\n", cmd);
-        break;
-    }
-    }
-}
-
-void RUDPServer::HandleQuitMessage(const RawPackage &pkg)
-{
-    printf("handle quit\n");
-}
-
-void RUDPServer::HandleHeartbeatMessage(const RawPackage &pkg)
-{
-    printf("handle heartbeat\n");
-}
-
-void RUDPServer::HandleDataMessage(const RawPackage &pkg)
-{
-    printf("handle data\n");
-}
-
-void RUDPServer::HandleStartMessage(const RawPackage &pkg)
-{
-    printf("handle start\n");
+    printf("after command dispatcher, cmdid: %u, current session_num: %d\n", header.cmdid,
+           Singleton<SessionManager>::get_mutable_instance().Count());
 }
 
 bool RUDPServer::OnValidate(const NetMessageHeader &header)
@@ -143,6 +96,7 @@ bool RUDPServer::OnValidate(const NetMessageHeader &header)
     return true;
 }
 
+// [Obsolete]
 void RUDPServer::RecvBytesFromNetwork()
 {
     uint8_t socket_recv_buffer[DEFAULT_MSS];
@@ -214,49 +168,6 @@ void RUDPServer::RecvBytesFromNetwork()
 void RUDPServer::Tick()
 {
     OnRecvBytes();
-}
-
-void RUDPServer::SerializeData(const char *data, size_t len)
-{
-    // printf("sizeof1: %u, sizeof2: %u, appid: %u\n", sizeof(application_id), sizeof(uint32_t), application_id);
-    pack_size = 0;
-
-    // pack application_id of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(application_id); i++)
-    {
-        raw_data[i] = (application_id >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(application_id);
-
-    // pack seq of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(seq); i++)
-    {
-        raw_data[i] = (seq >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(seq);
-
-    // pack the ack of header
-    for (uint32_t i = pack_size; i < pack_size + sizeof(remote_seq); i++)
-    {
-        raw_data[i] = (remote_seq >> i * 8) & 0xff;
-    }
-    pack_size += sizeof(remote_seq);
-
-    // pack data
-    memcpy(raw_data + pack_size, data, len);
-    pack_size += len;
-
-    memcpy(raw_data + pack_size, " <= [SVR RETURNED] ", sizeof(" <= [SVR RETURNED] "));
-    pack_size += sizeof(" <= [SVR RETURNED] ");
-
-    for (uint32_t i = pack_size; i < pack_size + sizeof(svr_tick); i++)
-    {
-        raw_data[i] = (svr_tick >> i * 8) & 0xff;
-    }
-
-    pack_size += sizeof(svr_tick);
-
-    printf("after serialize, pack_size: %d\n", pack_size);
 }
 
 void RUDPServer::Stop()

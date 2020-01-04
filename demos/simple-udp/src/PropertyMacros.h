@@ -194,50 +194,50 @@ public:                                          \
 private:                                         \
     char name##_[maxsize];
 
-#define M_INT_WARN_RETURN(int_value, uid, ret)               \
-    if (int_value != RET::SUCCESS) {                         \
-        LOG_WARN(0, uid, "CHECK_FAIL! error=%d", int_value); \
-        return ret;                                          \
-    }
+// #define M_INT_WARN_RETURN(int_value, uid, ret)               \
+//     if (int_value != RET::SUCCESS) {                         \
+//         LOG_WARN(0, uid, "CHECK_FAIL! error=%d", int_value); \
+//         return ret;                                          \
+//     }
 
-#define M_PTR_WARN_RETURN(ptr_value, uid, ret) \
-    if (ptr_value == NULL) {                   \
-        LOG_WARN(0, uid, "CHECK_FAIL!");       \
-        return ret;                            \
-    }
+// #define M_PTR_WARN_RETURN(ptr_value, uid, ret) \
+//     if (ptr_value == NULL) {                   \
+//         LOG_WARN(0, uid, "CHECK_FAIL!");       \
+//         return ret;                            \
+//     }
 
-#define M_BOOL_WARN_RETURN(bool_value, uid, ret) \
-    if (bool_value == false) {                   \
-        LOG_WARN(0, uid, "CHECK_FAIL!");         \
-        return ret;                              \
-    }
+// #define M_BOOL_WARN_RETURN(bool_value, uid, ret) \
+//     if (bool_value == false) {                   \
+//         LOG_WARN(0, uid, "CHECK_FAIL!");         \
+//         return ret;                              \
+//     }
 
-#define M_INT_WARN_BREAK(int_value, uid, ret, ret_if_fail)   \
-    if (int_value != RET::SUCCESS) {                         \
-        ret = ret_if_fail;                                   \
-        LOG_WARN(0, uid, "CHECK_FAIL! error=%d", int_value); \
-        break;                                               \
-    }
+// #define M_INT_WARN_BREAK(int_value, uid, ret, ret_if_fail)   \
+//     if (int_value != RET::SUCCESS) {                         \
+//         ret = ret_if_fail;                                   \
+//         LOG_WARN(0, uid, "CHECK_FAIL! error=%d", int_value); \
+//         break;                                               \
+//     }
 
-#define M_PTR_WARN_BREAK(ptr_value, uid, ret, ret_if_fail) \
-    if (ptr_value == NULL) {                               \
-        ret = ret_if_fail;                                 \
-        LOG_WARN(0, uid, "CHECK_FAIL! %d", ret);           \
-        break;                                             \
-    }
+// #define M_PTR_WARN_BREAK(ptr_value, uid, ret, ret_if_fail) \
+//     if (ptr_value == NULL) {                               \
+//         ret = ret_if_fail;                                 \
+//         LOG_WARN(0, uid, "CHECK_FAIL! %d", ret);           \
+//         break;                                             \
+//     }
 
-#define M_BOOL_WARN_BREAK(bool_value, uid, ret, ret_if_fail) \
-    if (bool_value == false) {                               \
-        ret = ret_if_fail;                                   \
-        LOG_WARN(0, uid, "CHECK_FAIL! %d", ret);             \
-        break;                                               \
-    }
+// #define M_BOOL_WARN_BREAK(bool_value, uid, ret, ret_if_fail) \
+//     if (bool_value == false) {                               \
+//         ret = ret_if_fail;                                   \
+//         LOG_WARN(0, uid, "CHECK_FAIL! %d", ret);             \
+//         break;                                               \
+//     }
 
-#define M_PTR_WARN_CONTINUE(ptr_value, uid) \
-    if (ptr_value == NULL) {                \
-        LOG_WARN(0, uid, "CHECK_FAIL!");    \
-        continue;                           \
-    }
+// #define M_PTR_WARN_CONTINUE(ptr_value, uid) \
+//     if (ptr_value == NULL) {                \
+//         LOG_WARN(0, uid, "CHECK_FAIL!");    \
+//         continue;                           \
+//     }
 
 #ifndef BIT_GET_AT
 #define BIT_GET_AT(data, n) ((data) >> n & 1)

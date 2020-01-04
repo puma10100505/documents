@@ -21,22 +21,17 @@ public:
     void Tick();
     void Stop();
 
+    inline NetSocket &GetServerSocket() { return svr_socket; }
+
 private:
-    // [Obsolete]
-    void SerializeData(const char *data, size_t len);
     void DumpPacket(const char *packet, size_t plen);
 
     // [Obsolete]
     void RecvBytesFromNetwork();
-    bool OnValidate(const NetMessageHeader& header);
-    void CommandDispatcher(uint8_t cmd, const RawPackage& pkg);
-    void OnRecvBytes();
 
-private:
-    void HandleQuitMessage(const RawPackage& pkg);
-    void HandleHeartbeatMessage(const RawPackage& pkg);
-    void HandleDataMessage(const RawPackage& pkg);
-    void HandleStartMessage(const RawPackage& pkg);
+    bool OnValidate(const NetMessageHeader &header);
+
+    void OnRecvBytes();
 
 private:
     NetSocket svr_socket;

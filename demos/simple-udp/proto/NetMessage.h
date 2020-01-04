@@ -97,6 +97,33 @@ typedef struct stRawPackage
     }
 } RawPackage;
 
+// Start命令的回包协议
+typedef struct
+{
+    int64_t guid;
+    uint32_t sid;
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteInt64(guid);
+        writer.WriteUInt32(sid);
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        guid = reader.ReadInt64();
+        sid = reader.ReadUInt32();
+    }
+
+    void PrintString()
+    {
+        printf("guid: %ld, sid: %u\n", guid, sid);
+    }
+
+} StartResponse;
+
 #pragma pack()
 
 // [Obsolete]

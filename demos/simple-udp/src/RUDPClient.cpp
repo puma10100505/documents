@@ -92,7 +92,7 @@ void RUDPClient::PerformStart()
     AddClientPackage(writer);
 }
 
-void RUDPClient::ResolveStart(const RawPackage &pkg)
+void RUDPClient::ResolveStart(const StartResponse &pkg)
 {
     // TODO: 处理START回包
     printf("entry of ResolveStart, \n");
@@ -277,20 +277,22 @@ void RUDPClient::OnRecv()
     //}
 
     BufferReader reader((const uint8_t *)recv_buff, recv_bytes);
+
     NetMessageHeader header;
     header.Deserialize(reader);
 
+    printf("reader.index: %lu, header.length: %lu\n", reader.Raw().Position(), sizeof(header));
     if (OnValidate(header) == false)
     {
         printf("header is invalid\n");
         return;
     }
 
-    RawPackage pkg;
+    StartResponse pkg;
     pkg.Deserialize(reader);
     ResponsePackage resp;
     resp.cmd = header.cmdid;
-    resp.package = pkg;
+    resp.package.start = pkg;
     pending_recv_list.emplace_back(std::move(resp));
 }
 
@@ -303,16 +305,16 @@ void RUDPClient::OnUpdate()
         switch (pkg.cmd)
         {
         case ENetCommandID::NET_CMD_START:
-            ResolveStart(pkg.package);
+            ResolveStart(pkg.package.start);
             break;
         default:
             break;
         }
 
         // Logic Process...
-        printf("fragment_idx: %u, fragment_count: %u, pkg_len: %lu, pkg_content: %s\n",
-               pkg.package.fragment_idx, pkg.package.fragment_count,
-               pkg.package.pkg_len, pkg.package.pkg_buff);
+        // printf("fragment_idx: %u, fragment_count: %u, pkg_len: %lu, pkg_content: %s\n",
+        //        pkg.package.fragment_idx, pkg.package.fragment_count,
+        //        pkg.package.pkg_len, pkg.package.pkg_buff);
     }
 
     pending_recv_list.clear();

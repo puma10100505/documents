@@ -32,7 +32,11 @@ typedef struct stClientPackage
 typedef struct stResponsePackage
 {
     uint8_t cmd;
-    RawPackage package;
+    union {
+        RawPackage raw;
+        StartResponse start;
+    } package;
+
 } ResponsePackage;
 
 class RUDPClient final
@@ -81,7 +85,7 @@ private:
     void PerformData();
     void PerformStart();
 
-    void ResolveStart(const RawPackage &pkg);
+    void ResolveStart(const StartResponse &pkg);
 
 private:
     uint32_t application_id;

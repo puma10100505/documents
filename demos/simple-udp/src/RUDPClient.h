@@ -1,4 +1,5 @@
 #pragma once
+
 #include "NetSocket.h"
 #include "NetAddress.h"
 #include "NetMessage.h"
@@ -8,18 +9,10 @@
 #include <vector>
 #include "PropertyMacros.h"
 
-// #include "boost/interprocess/managed_shared_memory.hpp"
-// #include "boost/interprocess/containers/vector.hpp"
-// #include "boost/interprocess/allocators/allocator.hpp"
-
 using namespace std;
 using namespace yinpsoft;
-// using namespace boost::interprocess;
 
 #define MAX_TRY_TIMES_FOR_SERVER_RESP 10
-
-// typedef boost::interprocess::allocator<int, managed_shared_memory::segment_manager> ShmAllocator;
-// typedef boost::interprocess::vector<int, ShmAllocator> shm_vector;
 
 namespace yinpsoft
 {
@@ -72,8 +65,6 @@ private:
     void DumpPacket(const char *packet, size_t plen);
     void DumpBuffer(RawBuffer &buff);
 
-    // void AcceptStdInput(std::string &input_str);
-    // void NetCommandDispacher(const std::string &command);
     void NetCommandDispatcher(const int32_t cmd);
     void AddClientPackage(BufferWriter &writer);
 
@@ -101,6 +92,9 @@ private:
     uint32_t pack_size;
     int32_t interval;
     uint32_t client_tick;
+    GETSETVAR(uint32_t, sid, 0);
+    GETSETVAR(uint64_t, battle_id, 0);
+    GETSETVAR(uint64_t, guid, 0);
 
     bool enable_shm = false;
 

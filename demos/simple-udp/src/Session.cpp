@@ -85,6 +85,7 @@ void Session::HandleStartMessage(const StartReq &pkg)
     StartResp resp;
     resp.guid = pkg.guid;
     resp.sid = sid();
+    resp.battle_id = 17295764174200172546;
 
     BufferWriter writer;
     header.Serialize(writer);

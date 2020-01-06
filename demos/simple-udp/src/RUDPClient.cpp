@@ -36,6 +36,8 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
     //     shm_command_list = segment.find_or_construct<shm_vector>("COMMAND_LIST")(alloc_inst);
     // }
 
+    set_guid(10908259400932504);
+
     printf("finish client init\n");
 
     return *this;
@@ -52,14 +54,18 @@ void RUDPClient::AddClientPackage(BufferWriter &writer)
 
 void RUDPClient::PerformQuit()
 {
-    NetMessageHeader header;
+    NetHeader header;
     header.cmdid = ENetCommandID::NET_CMD_QUIT;
-    header.appid = application_id;
+    header.sid = sid();
+
+    QuitReq req;
+    req.guid = guid();
+    req.battle_id = battle_id();
+    req.sid = sid();
 
     BufferWriter writer;
-    size_t len = header.Serialize(writer);
-
-    printf("after serialize len: %lu\n", len);
+    header.Serialize(writer);
+    req.Serialize(writer);
 
     AddClientPackage(writer);
 }
@@ -86,8 +92,8 @@ void RUDPClient::PerformStart()
 
     StartReq req;
     req.udid = 0;
-    req.guid = 10908259400932504;
-    req.battle_id = 17295764174200172546;
+    req.guid = guid();
+    //req.battle_id = 17295764174200172546;
 
     BufferWriter writer;
     size_t len = header.Serialize(writer);
@@ -102,7 +108,9 @@ void RUDPClient::ResolveStart(const StartResp &pkg)
 {
     // TODO: 处理START回包
     printf("entry of ResolveStart............................ \n");
-    // pkg.PrintString();
+
+    set_sid(pkg.sid);
+    set_battle_id(pkg.battle_id);
 }
 
 void RUDPClient::PerformData()

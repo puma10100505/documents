@@ -57,9 +57,6 @@ void RUDPServer::OnRecvBytes()
         return;
     }
 
-    // RawPackage pkg;
-    // pkg.Deserialize(reader);
-
     // find a session to process rawpackage
     Session *session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
 

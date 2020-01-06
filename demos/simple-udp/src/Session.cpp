@@ -3,6 +3,7 @@
 #include "Commands.h"
 #include "RUDPServer.h"
 #include "NetAddress.h"
+#include "BufferReader.h"
 
 using namespace std;
 using namespace yinpsoft;
@@ -17,13 +18,22 @@ void Session::PushPendingSend(const RawPackage &pkg)
     pending_recv_list.emplace_back(pkg);
 }
 
-int32_t Session::CommandDispatcher(uint8_t cmdid, const RawPackage &pkg)
+int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
 {
     switch (cmdid)
     {
     case ENetCommandID::NET_CMD_START:
     {
-        HandleStartMessage(pkg);
+        if (reader.IsReadDone())
+        {
+            printf("there is nothing to read\n");
+            return -1;
+        }
+
+        StartReq req;
+        req.Deserialize(reader);
+
+        HandleStartMessage(req);
         break;
     }
 
@@ -62,15 +72,17 @@ void Session::HandleDataMessage(const RawPackage &pkg)
     printf("handle data\n");
 }
 
-void Session::HandleStartMessage(const RawPackage &pkg)
+void Session::HandleStartMessage(const StartReq &pkg)
 {
-    printf("handle start\n");
+    printf("handle start, pkg: %s\n", pkg.ToString().c_str());
 
-    NetMessageHeader header;
-    header.cmdid = ENetCommandID::NET_CMD_START;
-    header.appid = appid;
+    set_guid(pkg.guid);
 
-    StartResponse resp;
+    NetHeader header;
+    header.cmd = ENetCommandID::NET_CMD_START;
+    header.sid = sid();
+
+    StartResp resp;
     resp.guid = pkg.guid;
     resp.sid = sid();
 
@@ -125,7 +137,7 @@ void SessionManager::RemoveSession(uint32_t sid)
     }
 }
 
-Session *SessionManager::CreateSession(int64_t guid, RUDPServer *server)
+Session *SessionManager::CreateSession(RUDPServer *server)
 {
     // TODO: Remove old session with the same guid
 
@@ -133,7 +145,7 @@ Session *SessionManager::CreateSession(int64_t guid, RUDPServer *server)
 
     std::unique_ptr<Session> new_s(new Session());
     new_s->set_sid(SessionManager::sid_seq);
-    new_s->set_guid(guid);
+    // new_s->set_guid(guid);
     new_s->set_server(server);
 
     session_list[SessionManager::sid_seq] = std::move(new_s);

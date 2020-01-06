@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <chrono>
 #include <vector>
+#include "PropertyMacros.h"
 
 // #include "boost/interprocess/managed_shared_memory.hpp"
 // #include "boost/interprocess/containers/vector.hpp"
@@ -23,21 +24,21 @@ using namespace yinpsoft;
 namespace yinpsoft
 {
 
-typedef struct stClientPackage
+typedef struct
 {
     uint8_t buff[MAX_RAW_PACKAGE_SIZE];
     size_t len;
-} ClientPackage;
+} SendingPackage;
 
-typedef struct stResponsePackage
+typedef struct
 {
     uint8_t cmd;
     union {
         RawPackage raw;
-        StartResponse start;
+        StartResp start;
     } package;
 
-} ResponsePackage;
+} ReceivedPackage;
 
 class RUDPClient final
 {
@@ -63,6 +64,10 @@ public:
     inline void PushCommandLine(const ENetCommandID &line) { local_command_list.push_back(line); }
     inline int32_t CommandCount() { return static_cast<int32_t>(local_command_list.size()); }
 
+    void SendThread();
+    void RecvThread();
+    void UpdateThread();
+
 private:
     void DumpPacket(const char *packet, size_t plen);
     void DumpBuffer(RawBuffer &buff);
@@ -76,7 +81,7 @@ private:
     void OnSend();
     void OnCommandDispatch();
     void OnRecv();
-    bool OnValidate(const NetMessageHeader &header);
+    bool OnValidate(const NetHeader &header);
     void OnUpdate();
 
 private:
@@ -85,7 +90,7 @@ private:
     void PerformData();
     void PerformStart();
 
-    void ResolveStart(const StartResponse &pkg);
+    void ResolveStart(const StartResp &pkg);
 
 private:
     uint32_t application_id;
@@ -103,9 +108,11 @@ private:
     std::string command_params;
 
     // 客户端发送队列
-    std::vector<ClientPackage> pending_send_list;
-    std::vector<ResponsePackage> pending_recv_list;
+    std::vector<SendingPackage> pending_send_list;
+    std::vector<ReceivedPackage> pending_recv_list;
     std::vector<ENetCommandID> local_command_list;
     std::unordered_map<std::string, ENetCommandID> command_map;
+
+    GETSETVAR(bool, running, false);
 };
 }; // namespace yinpsoft

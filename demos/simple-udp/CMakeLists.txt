@@ -57,13 +57,12 @@ if (${with_ode} STREQUAL "ON")
 target_link_libraries(
     ${bin_name}
     ${lib_pb}
-    # ${lib_boost_chrono}
-    # ${lib_boost_log}
-    # ${lib_boost_log_setup}
     ${lib_ode}
     ${lib_drawstuff}
     -lstdc++
     -lpthread
+    -lboost_thread
+    -lboost_chrono
     -lrt
     -lGL 
     -lX11 
@@ -73,9 +72,8 @@ elseif (${with_ode} STREQUAL "OFF")
 target_link_libraries(
     ${bin_name}
     ${lib_pb}
-    # ${lib_boost_chrono}
-    # ${lib_boost_log}
-    # ${lib_boost_log_setup}
+    -lboost_thread
+    -lboost_chrono
     -lstdc++
     -lpthread
     -lrt

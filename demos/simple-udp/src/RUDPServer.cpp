@@ -2,6 +2,7 @@
 #include "Commands.h"
 #include "Session.h"
 #include "Singleton.h"
+#include "NetMessage.h"
 
 using namespace yinpsoft;
 
@@ -30,18 +31,17 @@ void RUDPServer::OnRecvBytes()
 
     if (recv_bytes <= 0)
     {
-        //printf("recv from client failed, recv_bytes: %ld\n", recv_bytes);
         return;
     }
 
-    if (static_cast<size_t>(recv_bytes) < sizeof(NetMessageHeader))
+    if (static_cast<size_t>(recv_bytes) < sizeof(NetHeader))
     {
         printf("recv bytes is not match the header, header.len: %lu, recv.len: %ld\n",
-               sizeof(NetMessageHeader), recv_bytes);
+               sizeof(NetHeader), recv_bytes);
         return;
     }
 
-    NetMessageHeader header;
+    NetHeader header;
     BufferReader reader(socket_recv_buffer, recv_bytes);
     header.Deserialize(reader);
 
@@ -57,24 +57,24 @@ void RUDPServer::OnRecvBytes()
         return;
     }
 
-    RawPackage pkg;
-    pkg.Deserialize(reader);
+    // RawPackage pkg;
+    // pkg.Deserialize(reader);
 
     // find a session to process rawpackage
     Session *session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
 
     // 在非START协议的情况下SESSION为空是异常情况
-    if (session == nullptr && header.cmdid != ENetCommandID::NET_CMD_START)
+    if (session == nullptr && header.cmd != ENetCommandID::NET_CMD_START)
     {
         printf("not found the session by sid: %u\n", header.sid);
         return;
     }
 
     // 如果是START则新创建一个SESSION
-    if (header.cmdid == ENetCommandID::NET_CMD_START)
+    if (header.cmd == ENetCommandID::NET_CMD_START)
     {
         // Create a new session
-        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(pkg.guid, this);
+        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(this);
     }
 
     // 这里SESSION为空是异常情况
@@ -89,7 +89,7 @@ void RUDPServer::OnRecvBytes()
     ssize_t ret = 0;
     // -------------------------- for test
     // NetMessageHeader header2;
-    // header2.cmdid = ENetCommandID::NET_CMD_START;
+    // header2.cmd = ENetCommandID::NET_CMD_START;
     // header2.appid = appid;
 
     // StartResponse resp;
@@ -103,13 +103,13 @@ void RUDPServer::OnRecvBytes()
     // ret = svr_socket.SendTo(from_addr, writer.InternalBuffer(), writer.Length());
     // --------------------------
 
-    session->CommandDispatcher(header.cmdid, pkg);
+    session->CommandDispatcher(header.cmd, reader);
 
-    printf("after command dispatcher, cmdid: %u, current session_num: %d, ret: %ld\n", header.cmdid,
+    printf("after command dispatcher, cmd: %u, current session_num: %d, ret: %ld\n", header.cmd,
            Singleton<SessionManager>::get_mutable_instance().Count(), ret);
 }
 
-bool RUDPServer::OnValidate(const NetMessageHeader &header)
+bool RUDPServer::OnValidate(const NetHeader &header)
 {
     return true;
 }
@@ -141,7 +141,7 @@ void RUDPServer::RecvBytesFromNetwork()
         printf("after recv from client, len: %ld\n", recv_bytes);
 
         // 包头大小不合法
-        if (recv_bytes < (ssize_t)sizeof(NetMessageHeader))
+        if (recv_bytes < (ssize_t)sizeof(NetHeader))
         {
             printf("packet len is too small , ret: %ld\n", recv_bytes);
             continue;
@@ -151,10 +151,10 @@ void RUDPServer::RecvBytesFromNetwork()
 
         // 解析网络包头
         BufferReader netreader(socket_recv_buffer, recv_bytes);
-        NetMessageHeader header;
+        NetHeader header;
         header.Deserialize(netreader);
 
-        header.PrintString();
+        // header.PrintString();
 
         // TODO: 网络包头信息的一些检查验证逻辑
         // ...
@@ -172,7 +172,7 @@ void RUDPServer::RecvBytesFromNetwork()
         }
         else
         {
-            printf("illegal package, there is no data to read after NetMessageHeader\n");
+            printf("illegal package, there is no data to read after NetHeader\n");
             continue;
         }
 

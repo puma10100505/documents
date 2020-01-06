@@ -11,6 +11,7 @@ namespace yinpsoft
 {
 class RUDPServer;
 class NetAddress;
+class BufferReader;
 
 class Session final
 {
@@ -24,7 +25,7 @@ public:
     inline const std::vector<RawPackage> &PendingSendList() { return pending_send_list; }
     inline const std::vector<RawPackage> &PendingRecvList() { return pending_recv_list; }
 
-    int32_t CommandDispatcher(uint8_t cmdid, const RawPackage &pkg);
+    int32_t CommandDispatcher(uint8_t cmdid, BufferReader &reader);
     void SendPackage(const BufferWriter &writer);
     inline void SetClientAddress(const NetAddress &addr) { client_addr = addr; }
 
@@ -32,7 +33,7 @@ private:
     void HandleQuitMessage(const RawPackage &pkg);
     void HandleHeartbeatMessage(const RawPackage &pkg);
     void HandleDataMessage(const RawPackage &pkg);
-    void HandleStartMessage(const RawPackage &pkg);
+    void HandleStartMessage(const StartReq &pkg);
 
 private:
     GETSETVAR(uint32_t, sid, 0);
@@ -54,7 +55,7 @@ public:
     Session *GetSession(uint32_t sid);
     bool IsSessionExist(uint32_t sid);
     void RemoveSession(uint32_t sid);
-    Session *CreateSession(int64_t guid, RUDPServer *server);
+    Session *CreateSession(RUDPServer *server);
     inline int32_t Count() { return static_cast<int32_t>(session_list.size()); }
 
 private:

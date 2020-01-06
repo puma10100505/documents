@@ -29,7 +29,7 @@ private:
     // [Obsolete]
     void RecvBytesFromNetwork();
 
-    bool OnValidate(const NetMessageHeader &header);
+    bool OnValidate(const NetHeader &header);
 
     void OnRecvBytes();
 

@@ -15,6 +15,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <csignal>
 #include <iostream>
 
 #include <sys/ioctl.h>

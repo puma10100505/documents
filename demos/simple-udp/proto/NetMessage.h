@@ -64,7 +64,7 @@ typedef struct stNetMessageHeader
 
 typedef struct stRawPackage
 {
-    int64_t guid;
+    uint64_t guid;
     uint32_t fragment_idx;
     uint32_t fragment_count;
     size_t pkg_len;
@@ -72,7 +72,7 @@ typedef struct stRawPackage
 
     size_t Serialize(yinpsoft::BufferWriter &writer)
     {
-        writer.WriteInt64(guid);
+        writer.WriteUInt64(guid);
         writer.WriteUInt32(fragment_idx);
         writer.WriteUInt32(fragment_count);
         writer.WriteUInt32(pkg_len);
@@ -83,7 +83,7 @@ typedef struct stRawPackage
 
     void Deserialize(yinpsoft::BufferReader &reader)
     {
-        guid = reader.ReadInt64();
+        guid = reader.ReadUInt64();
         fragment_idx = reader.ReadUInt32();
         fragment_count = reader.ReadUInt32();
         pkg_len = reader.ReadUInt32();
@@ -97,15 +97,14 @@ typedef struct stRawPackage
     }
 } RawPackage;
 
-// Start命令的回包协议
 typedef struct
 {
-    int64_t guid;
+    uint8_t cmd;
     uint32_t sid;
 
     size_t Serialize(yinpsoft::BufferWriter &writer)
     {
-        writer.WriteInt64(guid);
+        writer.WriteUInt8(cmd);
         writer.WriteUInt32(sid);
 
         return writer.Raw().Length();
@@ -113,16 +112,82 @@ typedef struct
 
     void Deserialize(yinpsoft::BufferReader &reader)
     {
-        guid = reader.ReadInt64();
+        cmd = reader.ReadUInt8();
+        sid = reader.ReadUInt32();
+    }
+
+    std::string ToString() const
+    {
+        char str[128];
+        snprintf(str, 256, "cmd: %u|sid: %u", cmd, sid);
+        return str;
+    }
+} NetHeader;
+
+typedef struct
+{
+    uint64_t guid;
+    uint32_t udid;
+    uint64_t battle_id;
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteUInt64(guid);
+        writer.WriteUInt32(udid);
+        writer.WriteUInt64(battle_id);
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        guid = reader.ReadUInt64();
+        udid = reader.ReadUInt32();
+        battle_id = reader.ReadUInt64();
+    }
+
+    std::string ToString() const
+    {
+        char str[128];
+        snprintf(str, 128, "guid: %lu|udid: %u|battle_id: %lu", guid, udid, battle_id);
+        return str;
+    }
+
+} StartReq;
+
+// Start命令的回包协议
+typedef struct
+{
+    uint64_t guid;
+    uint32_t sid;
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteUInt64(guid);
+        writer.WriteUInt32(sid);
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        guid = reader.ReadUInt64();
         sid = reader.ReadUInt32();
     }
 
     void PrintString()
     {
-        printf("guid: %ld, sid: %u\n", guid, sid);
+        printf("guid: %lu, sid: %u\n", guid, sid);
     }
 
-} StartResponse;
+    std::string ToString() const
+    {
+        char str[128];
+        snprintf(str, 128, "guid: %lu|sid: %u", guid, sid);
+        return str;
+    }
+
+} StartResp;
 
 #pragma pack()
 

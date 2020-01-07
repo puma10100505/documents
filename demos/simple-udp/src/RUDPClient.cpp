@@ -55,7 +55,7 @@ void RUDPClient::AddClientPackage(BufferWriter &writer)
 void RUDPClient::PerformQuit()
 {
     NetHeader header;
-    header.cmdid = ENetCommandID::NET_CMD_QUIT;
+    header.cmd = ENetCommandID::NET_CMD_QUIT;
     header.sid = sid();
 
     QuitReq req;

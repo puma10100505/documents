@@ -10,7 +10,8 @@ using namespace chrono;
 
 #define DENSITY (.5f)
 
-#define MAX_ROBOTS_NUM 16*16
+#define MAX_ROBOTS_LINE_NUM 32
+#define MAX_ROBOTS_NUM MAX_ROBOTS_LINE_NUM*MAX_ROBOTS_LINE_NUM
 
 enum COLOR_RGB {
     R = 0,
@@ -35,19 +36,19 @@ static dJointGroupID contactgroup;
 static int flag = 0;
 static dsFunctions fn;
 static const dReal radius = 0.2;
-static const dReal min_dist = 5.0f;
-static const dReal sides[3] = {2.0f, 2.0f, 2.0f};
+static const dReal min_dist = 7.0f;
+static const dReal sides[3] = {3.0f, 3.0f, 3.0f};
 static const dReal sides_robot[3] = {1.0f, 1.0f, 1.0f};
 static const dReal roll_power = 250.0f;
-static const dReal push_power = 50.0f;
-static const dReal jump_power = 10;
+static const dReal push_power = 100.0f;
+static const dReal jump_power = 50;
 static const dReal main_color[3] = {1.0 - 245.0f/255.0f, 1.0 - 140.0f/255.0f, 1.0 - 34.0f/255.0f};
 static std::unordered_map<dBodyID, high_resolution_clock::time_point> color_list;
 static GameObject box;
 static GameObject robots[MAX_ROBOTS_NUM];
 
-static const int WIDTH = 1680;
-static const int HEIGHT = 1050;
+static const int WIDTH = 960;
+static const int HEIGHT = 640;
 
 
 void nearCallback(void *data, dGeomID o1, dGeomID o2) {
@@ -62,7 +63,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2) {
         for (int i = 0; i < n; i++) {
             contact[i].surface.mode = dContactBounce;
             contact[i].surface.mu = dInfinity;
-            contact[i].surface.bounce = 0.2f;
+            contact[i].surface.bounce = 0.001f;
             contact[i].surface.bounce_vel = 0.001f;
             dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
             dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
@@ -77,14 +78,26 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2) {
             dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
             dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
 
-            color_list[dGeomGetBody(contact[i].geom.g1)] = high_resolution_clock::now();
-            color_list[dGeomGetBody(contact[i].geom.g2)] = high_resolution_clock::now();
+            // if (dGeomGetBody(contact[i].geom.g1) != box.body && dGeomGetBody(contact[i].geom.g2) != box.body)
+            // {
+            //     continue;
+            // }
+
+            if (dGeomGetBody(contact[i].geom.g1) != box.body) 
+            {
+                color_list[dGeomGetBody(contact[i].geom.g1)] = high_resolution_clock::now();
+            }
+            
+            if (dGeomGetBody(contact[i].geom.g2) != box.body) 
+            {
+                color_list[dGeomGetBody(contact[i].geom.g2)] = high_resolution_clock::now();
+            }
         }
     }
 }
 
 void findNearestBoxes() {
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < MAX_ROBOTS_NUM; i++) {
         const dReal* robot_pos = dBodyGetPosition(robots[i].body);
         const dReal* box_pos = dBodyGetPosition(box.body);
         dReal dist = dDISTANCE(robot_pos, box_pos);
@@ -121,9 +134,9 @@ void step(int pause) {
 
     findNearestBoxes();
 
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < 16; j++) {
-            dBodyID curr_bodyId = robots[(i * 16) + j].body;
+    for (int i = 0; i < MAX_ROBOTS_LINE_NUM; i++) {
+        for (int j = 0; j < MAX_ROBOTS_LINE_NUM; j++) {
+            dBodyID curr_bodyId = robots[(i * MAX_ROBOTS_LINE_NUM) + j].body;
             if (color_list.find(curr_bodyId) != color_list.end()) {
                 high_resolution_clock::time_point event_time = color_list[curr_bodyId];
 
@@ -235,7 +248,7 @@ static void InitWorld(int argc, char** argv) {
     dWorldSetERP(world, 0.2f);
     dWorldSetCFM(world, 0.0005f);
 
-    dWorldSetGravity(world, 0, 0, -9.8f);
+    dWorldSetGravity(world, 0, 0, -20.0f);
     ground = dCreatePlane(space, 0, 0, 1, 0);
     
     box.body = dBodyCreate(world);
@@ -249,17 +262,17 @@ static void InitWorld(int argc, char** argv) {
     // create robots
     int count = 0;
     memset(robots, 0, sizeof(GameObject) * 256);
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < 16; j++) {
+    for (int i = 0; i < MAX_ROBOTS_LINE_NUM; i++) {
+        for (int j = 0; j < MAX_ROBOTS_LINE_NUM; j++) {
             dMass robot_mass;
-            int idx = (i * 16) + j;
+            int idx = (i * MAX_ROBOTS_LINE_NUM) + j;
             robots[idx].body = dBodyCreate(world);
             dMassSetZero(&robot_mass);
             dMassSetBox(&robot_mass, DENSITY, sides_robot[0], sides_robot[1], sides_robot[2]);
             dBodySetMass(robots[idx].body, &robot_mass);
 
-            dReal x = (i * 1.0f * 2.0f) - 15.0f;
-            dReal y = (1.0f * 2.0f * j) - 15.0f;
+            dReal x = (i * 1.0f * 2.0f) - MAX_ROBOTS_LINE_NUM;
+            dReal y = (1.0f * 2.0f * j) - MAX_ROBOTS_LINE_NUM;
             dBodySetPosition(robots[idx].body, x, y, 0.0f);
 
             robots[idx].geom = dCreateBox(space, sides_robot[0], sides_robot[1], sides_robot[2]);

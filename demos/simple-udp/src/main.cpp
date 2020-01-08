@@ -57,6 +57,11 @@ int main(int argc, char **argv)
         printf("start server ...\n");
         Singleton<GameEngine>::get_mutable_instance().Initialize().Startup();
     }
+    else if (app_type == "rawcli")
+    {
+        printf("start client ...\n");
+        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
+    }
 #ifdef GLCLI
     else if (app_type == "cli" || app_type == "client")
     {
@@ -64,7 +69,7 @@ int main(int argc, char **argv)
         InitWorld(argc, argv);
     }
 #else
-    else if (app_type == "cli" || app_type == "client" || app_type == "rawcli")
+    else if (app_type == "cli" || app_type == "client")
     {
         printf("start client ...\n");
         Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();

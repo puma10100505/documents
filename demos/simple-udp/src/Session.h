@@ -30,7 +30,7 @@ public:
     inline void SetClientAddress(const NetAddress &addr) { client_addr = addr; }
 
 private:
-    void HandleQuitMessage(const RawPackage &pkg);
+    void HandleQuitMessage(const QuitReq &pkg);
     void HandleHeartbeatMessage(const RawPackage &pkg);
     void HandleDataMessage(const RawPackage &pkg);
     void HandleStartMessage(const StartReq &pkg);

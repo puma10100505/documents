@@ -17,18 +17,20 @@ using namespace yinpsoft;
 namespace yinpsoft
 {
 
-typedef struct
+typedef struct 
 {
     uint8_t buff[MAX_RAW_PACKAGE_SIZE];
     size_t len;
+
 } SendingPackage;
 
-typedef struct
+typedef struct 
 {
     uint8_t cmd;
     union {
         RawPackage raw;
         StartResp start;
+        QuitResp quit;
     } package;
 
 } ReceivedPackage;
@@ -82,6 +84,7 @@ private:
     void PerformStart();
 
     void ResolveStart(const StartResp &pkg);
+    void ResolveQuit(const QuitResp &pkg);
 
 private:
     uint32_t application_id;

@@ -104,10 +104,17 @@ void RUDPClient::PerformStart()
     AddClientPackage(writer);
 }
 
+void RUDPClient::ResolveQuit(const QuitResp &pkg)
+{
+    printf("entry of ResolveQuit.......... pkg: %s\n", pkg.ToString().c_str());
+
+    set_sid(0);
+}
+
 void RUDPClient::ResolveStart(const StartResp &pkg)
 {
     // TODO: 处理START回包
-    printf("entry of ResolveStart............................ \n");
+    printf("entry of ResolveStart.......... pkg: %s\n", pkg.ToString().c_str());
 
     set_sid(pkg.sid);
     set_battle_id(pkg.battle_id);
@@ -326,6 +333,17 @@ void RUDPClient::OnRecv()
         resp.package.start = pkg;
         break;
     }
+    case ENetCommandID::NET_CMD_QUIT:
+    {
+        QuitResp pkg;
+        pkg.Deserialize(reader);
+        resp.package.quit = pkg;
+        break;
+    }
+    case ENetCommandID::NET_CMD_BUILD_WORLD:
+    {
+        // FIRST-TODO:
+    }
     default:
         break;
     }
@@ -357,6 +375,9 @@ void RUDPClient::OnUpdate()
         {
         case ENetCommandID::NET_CMD_START:
             ResolveStart(pkg.package.start);
+            break;
+        case ENetCommandID::NET_CMD_QUIT:
+            ResolveQuit(pkg.package.quit);
             break;
         default:
             break;

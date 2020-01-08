@@ -1,5 +1,6 @@
 #include "Session.h"
 #include "NetMessage.h"
+#include "Singleton.h"
 #include "Commands.h"
 #include "RUDPServer.h"
 #include "NetAddress.h"
@@ -39,6 +40,16 @@ int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
 
     case ENetCommandID::NET_CMD_QUIT:
     {
+        if (reader.IsReadDone())
+        {
+            printf("there is nothing to read\n");
+            return -1;
+        }
+
+        QuitReq req;
+        req.Deserialize(reader);
+
+        HandleQuitMessage(req);
         break;
     }
 
@@ -57,9 +68,27 @@ int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
     return 0;
 }
 
-void Session::HandleQuitMessage(const RawPackage &pkg)
+void Session::HandleQuitMessage(const QuitReq &pkg)
 {
-    printf("handle quit\n");
+    printf("handle quit, pkg: %s\n", pkg.ToString().c_str());
+
+    Singleton<SessionManager>::get_mutable_instance().RemoveSession(pkg.sid);
+
+    printf("after quit, session num: %d\n", Singleton<SessionManager>::get_mutable_instance().Count());
+
+    NetHeader header;
+    header.cmd = ENetCommandID::NET_CMD_QUIT;
+    header.sid = pkg.sid;
+
+    QuitResp resp;
+    resp.guid = pkg.guid;
+    resp.sid = pkg.sid;
+
+    BufferWriter writer;
+    header.Serialize(writer);
+    resp.Serialize(writer);
+
+    SendPackage(writer);
 }
 
 void Session::HandleHeartbeatMessage(const RawPackage &pkg)

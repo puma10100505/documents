@@ -49,6 +49,24 @@ static GameObject robots[MAX_ROBOTS_NUM];
 static const int WIDTH = 1680;
 static const int HEIGHT = 1050;
 
+class Phyx
+{
+private:
+    /* data */
+public:
+    Phyx(/* args */);
+    ~Phyx();
+
+    void CalcCollider(void *data, dGeomID o1, dGeomID o2);
+};
+
+Phyx::Phyx(/* args */)
+{
+}
+
+Phyx::~Phyx()
+{
+}
 
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
     const int N = 10;

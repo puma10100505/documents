@@ -22,6 +22,7 @@ message(${project_root})
 file(GLOB source 
     ${project_root}/main.cpp 
     ${project_root}/*.cpp 
+    ${solution_root}/proto/*.pb.cc 
 )
 
 # message(${source})

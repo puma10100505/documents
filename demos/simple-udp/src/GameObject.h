@@ -9,15 +9,15 @@ namespace yinpsoft
 class Vector3;
 class Rotation;
 class World;
+class BufferWriter;
 
 class GameObject final
 {
 public:
     GameObject() {}
-    GameObject(World *world);
     ~GameObject() {}
 
-    void Initialize(float l, float w, float h, float d);
+    void Initialize(World* pw, float l, float w, float h, float d);
 
     inline const dBodyID &GetRigidbody() const { return rigidbody_id; }
     inline const dGeomID &GetGeometry() const { return geometry_id; }
@@ -33,6 +33,8 @@ public:
     Vector3 GetPosition();
     void SetRotation(const Quaternion &q);
     Quaternion GetRotation();
+
+    void Replicate(BufferWriter& writer);
 
 private:
     void SetMass();

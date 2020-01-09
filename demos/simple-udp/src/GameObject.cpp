@@ -1,16 +1,14 @@
 #include "GameObject.h"
 #include "World.h"
+#include "BufferWriter.h"
+#include "gameplay.pb.h"
 
 using namespace std;
 using namespace yinpsoft;
 
-GameObject::GameObject(World *w)
+void GameObject::Initialize(World* pw, float l, float w, float h, float d)
 {
-    set_world(w);
-}
-
-void GameObject::Initialize(float l, float w, float h, float d)
-{
+    set_world(pw);
     dBodyCreate(world_ptr()->GetPhyxWorld());
     set_length(l);
     set_width(w);
@@ -32,7 +30,7 @@ void GameObject::SetMass()
 
 void GameObject::SetPosition(const Vector3 &pos)
 {
-    dBodySetPosition(rigidbody_id, pos.x, pos.y, pos.z);
+    dBodySetPosition(rigidbody_id, pos.x(), pos.y(), pos.z());
 }
 
 Vector3 GameObject::GetPosition()
@@ -44,10 +42,10 @@ Vector3 GameObject::GetPosition()
 void GameObject::SetRotation(const Quaternion &q)
 {
     dQuaternion rotation;
-    rotation[0] = q.x;
-    rotation[1] = q.y;
-    rotation[2] = q.z;
-    rotation[3] = q.w;
+    rotation[0] = q.x();
+    rotation[1] = q.y();
+    rotation[2] = q.z();
+    rotation[3] = q.w();
 
     dBodySetQuaternion(rigidbody_id, rotation);
 }
@@ -56,4 +54,17 @@ Quaternion GameObject::GetRotation()
 {
     const dReal *tmp = dBodyGetQuaternion(rigidbody_id);
     return Quaternion(tmp[0], tmp[1], tmp[2], tmp[3]);
+}
+
+void GameObject::Replicate(BufferWriter& writer)
+{
+    Vector3 pos = GetPosition();
+    pb::GameObject data;
+    data.mutable_position()->set_x(pos.x());
+    data.mutable_position()->set_y(pos.y());
+    data.mutable_position()->set_z(pos.z());
+
+    data.set_goid(goid());
+
+    data.SerializeToArray(writer.MutableRaw().MutableBuffer(), data.ByteSizeLong());
 }

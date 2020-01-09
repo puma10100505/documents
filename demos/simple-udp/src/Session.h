@@ -57,6 +57,7 @@ public:
     void RemoveSession(uint32_t sid);
     Session *CreateSession(RUDPServer *server);
     inline int32_t Count() { return static_cast<int32_t>(session_list.size()); }
+    inline std::unordered_map<uint32_t, std::unique_ptr<class Session>>& AllSessions() { return session_list; }
 
 private:
     std::unordered_map<uint32_t, std::unique_ptr<class Session>> session_list;

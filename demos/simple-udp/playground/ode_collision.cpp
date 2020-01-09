@@ -18,9 +18,17 @@ typedef struct {
     dGeomID geom;
 } MyObject;
 
+typedef struct 
+{
+    dWorldID world;
+    dJointGroupID contactgroup;
+} CollisionParams;
+
 MyObject ball;
 
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
+    CollisionParams* param = (CollisionParams*)data;
+
     const int N = 10;
     dContact contact[N];
 
@@ -34,7 +42,7 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
             contact[i].surface.mu = dInfinity;
             contact[i].surface.bounce = 0.3f;
             contact[i].surface.bounce_vel = 0.3f;
-            dJointID c = dJointCreateContact(world, contactgroup, &contact[i]);
+            dJointID c = dJointCreateContact(param->world, param->contactgroup, &contact[i]);
             dJointAttach(c, dGeomGetBody(contact[i].geom.g1), dGeomGetBody(contact[i].geom.g2));
         }
     }
@@ -44,7 +52,11 @@ static void step(int pause) {
     const dReal *pos, *R;
     flag = 0; 
     dsSetSphereQuality(3);
-    dSpaceCollide(space, 0, &nearCallback);
+    CollisionParams param;
+    param.contactgroup = contactgroup;
+    param.world = world;
+    dSpaceCollide(space, (void*)&param, &nearCallback);
+    contactgroup = param.contactgroup;
    
 
     dWorldStep(world, 0.01);

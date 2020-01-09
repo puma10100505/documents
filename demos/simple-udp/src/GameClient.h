@@ -22,7 +22,7 @@ enum COLOR_RGB {
 typedef struct {
     dBodyID body;
     dGeomID geom;
-} GameObject;
+} CubeObject;
 
 typedef struct {
     dBodyID body;
@@ -44,8 +44,8 @@ static const dReal push_power = 100.0f;
 static const dReal jump_power = 50;
 static const dReal main_color[3] = {1.0 - 245.0f/255.0f, 1.0 - 140.0f/255.0f, 1.0 - 34.0f/255.0f};
 static std::unordered_map<dBodyID, high_resolution_clock::time_point> color_list;
-static GameObject box;
-static GameObject robots[MAX_ROBOTS_NUM];
+static ::CubeObject box;
+static ::CubeObject robots[MAX_ROBOTS_NUM];
 
 static const int WIDTH = 960;
 static const int HEIGHT = 640;
@@ -263,7 +263,7 @@ static void InitWorld(int argc, char** argv) {
         
     // create robots
     int count = 0;
-    memset(robots, 0, sizeof(GameObject) * MAX_ROBOTS_LINE_NUM * MAX_ROBOTS_LINE_NUM);
+    memset(robots, 0, sizeof(::CubeObject) * MAX_ROBOTS_LINE_NUM * MAX_ROBOTS_LINE_NUM);
     for (int i = 0; i < MAX_ROBOTS_LINE_NUM; i++) {
         for (int j = 0; j < MAX_ROBOTS_LINE_NUM; j++) {
             dMass robot_mass;

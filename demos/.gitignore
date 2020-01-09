@@ -1,7 +1,5 @@
 .vscode
-libs
-include
 *.a
 *.so
 build
-simple-udp/thirdparty/src
+bin

@@ -32,6 +32,7 @@ void GameEngine::Startup()
 void GameEngine::OnTick()
 {
     Singleton<RUDPServer>::get_mutable_instance().Tick();
+    Singleton<World>::get_mutable_instance().Tick();
 }
 
 GameEngine &GameEngine::Initialize(int32_t interval)
@@ -43,7 +44,6 @@ GameEngine &GameEngine::Initialize(int32_t interval)
 
     // Init World
     Singleton<World>::get_mutable_instance().Initialize();
-    
 
     return *this;
 }

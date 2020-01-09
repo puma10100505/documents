@@ -25,12 +25,7 @@ public:
 
 private:
     void DumpPacket(const char *packet, size_t plen);
-
-    // [Obsolete]
-    void RecvBytesFromNetwork();
-
     bool OnValidate(const NetHeader &header);
-
     void OnRecvBytes();
 
 private:

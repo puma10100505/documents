@@ -130,7 +130,7 @@ void World::Tick()
 
     dJointGroupEmpty(contact_group);
 
-    //Replicate();
+    Replicate();
 }
 
 void World::Replicate()

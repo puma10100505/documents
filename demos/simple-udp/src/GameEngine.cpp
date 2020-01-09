@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 #include "Singleton.h"
 #include "RUDPServer.h"
+#include "World.h"
 
 #include <chrono>
 
@@ -37,7 +38,12 @@ GameEngine &GameEngine::Initialize(int32_t interval)
 {
     tick_interval_ms = interval;
 
+    // Init udp server
     Singleton<RUDPServer>::get_mutable_instance().Initialize(server_appid, server_port);
+
+    // Init World
+    Singleton<World>::get_mutable_instance().Initialize();
+    
 
     return *this;
 }

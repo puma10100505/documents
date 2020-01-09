@@ -34,7 +34,7 @@ int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
         StartReq req;
         req.Deserialize(reader);
 
-        HandleStartMessage(req);
+        HandleStart(req);
         break;
     }
 
@@ -49,7 +49,7 @@ int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
         QuitReq req;
         req.Deserialize(reader);
 
-        HandleQuitMessage(req);
+        HandleQuit(req);
         break;
     }
 
@@ -68,7 +68,7 @@ int32_t Session::CommandDispatcher(uint8_t cmdid, BufferReader &reader)
     return 0;
 }
 
-void Session::HandleQuitMessage(const QuitReq &pkg)
+void Session::HandleQuit(const QuitReq &pkg)
 {
     printf("handle quit, pkg: %s\n", pkg.ToString().c_str());
 
@@ -91,17 +91,17 @@ void Session::HandleQuitMessage(const QuitReq &pkg)
     SendPackage(writer);
 }
 
-void Session::HandleHeartbeatMessage(const RawPackage &pkg)
+void Session::HandleHeartbeat(const RawPackage &pkg)
 {
     printf("handle heartbeat\n");
 }
 
-void Session::HandleDataMessage(const RawPackage &pkg)
+void Session::HandleData(const RawPackage &pkg)
 {
     printf("handle data\n");
 }
 
-void Session::HandleStartMessage(const StartReq &pkg)
+void Session::HandleStart(const StartReq &pkg)
 {
     printf("handle start, pkg: %s\n", pkg.ToString().c_str());
 

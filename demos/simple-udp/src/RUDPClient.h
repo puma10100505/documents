@@ -68,7 +68,7 @@ private:
     void DumpBuffer(RawBuffer &buff);
 
     void NetCommandDispatcher(const int32_t cmd);
-    void AddClientPackage(BufferWriter &writer);
+    void SendPackage(BufferWriter &writer);
 
     void OnInput();
     void OnSend();
@@ -82,6 +82,7 @@ private:
     void PerformHeartbeat();
     void PerformData();
     void PerformStart();
+    void PerformOpenWorld();
 
     void ResolveStart(const StartResp &pkg);
     void ResolveQuit(const QuitResp &pkg);

@@ -120,6 +120,8 @@ void step(int pause) {
     dWorldStep(world, 0.01);
     dJointGroupEmpty(contactgroup);
     
+
+    // Draw process
     dsSetColor(1.0 - 245.0f/255.0f, 1.0 - 140.0f/255.0f, 1.0 - 34.0f/255.0f);
 
     pos = dBodyGetPosition(box.body);
@@ -261,7 +263,7 @@ static void InitWorld(int argc, char** argv) {
         
     // create robots
     int count = 0;
-    memset(robots, 0, sizeof(GameObject) * 256);
+    memset(robots, 0, sizeof(GameObject) * MAX_ROBOTS_LINE_NUM * MAX_ROBOTS_LINE_NUM);
     for (int i = 0; i < MAX_ROBOTS_LINE_NUM; i++) {
         for (int j = 0; j < MAX_ROBOTS_LINE_NUM; j++) {
             dMass robot_mass;

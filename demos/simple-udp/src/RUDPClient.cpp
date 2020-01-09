@@ -43,7 +43,7 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
     return *this;
 }
 
-void RUDPClient::AddClientPackage(BufferWriter &writer)
+void RUDPClient::SendPackage(BufferWriter &writer)
 {
     SendingPackage pkg;
     memcpy(pkg.buff, writer.Raw().Buffer(), writer.Raw().Length());
@@ -67,7 +67,7 @@ void RUDPClient::PerformQuit()
     header.Serialize(writer);
     req.Serialize(writer);
 
-    AddClientPackage(writer);
+    SendPackage(writer);
 }
 
 void RUDPClient::PerformHeartbeat()
@@ -81,7 +81,24 @@ void RUDPClient::PerformHeartbeat()
 
     printf("after serialize len: %lu\n", len);
 
-    AddClientPackage(writer);
+    SendPackage(writer);
+}
+
+void RUDPClient::PerformOpenWorld()
+{
+    NetHeader header;
+    header.cmd = ENetCommandID::NET_CMD_BUILD_WORLD;
+    header.sid = sid();
+
+    OpenWorldReq req;
+    req.guid = guid();
+    req.sid = sid();
+
+    BufferWriter writer;
+    header.Serialize(writer);
+    req.Serialize(writer);
+
+    SendPackage(writer);
 }
 
 void RUDPClient::PerformStart()
@@ -101,7 +118,7 @@ void RUDPClient::PerformStart()
     len = req.Serialize(writer);
     printf("after serialize startreq len: %lu\n", len);
 
-    AddClientPackage(writer);
+    SendPackage(writer);
 }
 
 void RUDPClient::ResolveQuit(const QuitResp &pkg)
@@ -140,7 +157,7 @@ void RUDPClient::PerformData()
 
     printf("after serialize RawPackage len: %lu\n", len);
 
-    AddClientPackage(writer);
+    SendPackage(writer);
 }
 
 void RUDPClient::NetCommandDispatcher(const int32_t cmd)
@@ -165,6 +182,11 @@ void RUDPClient::NetCommandDispatcher(const int32_t cmd)
     case ENetCommandID::NET_CMD_START:
     {
         PerformStart();
+        break;
+    }
+    case ENetCommandID::NET_CMD_BUILD_WORLD:
+    {
+        PerformOpenWorld();
         break;
     }
     default:
@@ -342,7 +364,8 @@ void RUDPClient::OnRecv()
     }
     case ENetCommandID::NET_CMD_BUILD_WORLD:
     {
-        // FIRST-TODO:
+        
+        
     }
     default:
         break;

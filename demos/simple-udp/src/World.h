@@ -30,8 +30,11 @@ public:
     inline dWorldID &GetPhyxWorld() { return phyx_world; }
     inline dSpaceID &GetPhyxSpace() { return phyx_space; }
 
+    void SpawnObject(GameObject* go);
+
 private:
     static void CalcCollision(void *data, dGeomID o1, dGeomID o2);
+    void SendToAllClient(BufferWriter& writer);
 
 private:
     GETSETVAR(uint64_t, battle_id, 0);

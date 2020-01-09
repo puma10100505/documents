@@ -34,15 +34,70 @@ void World::Initialize()
             std::unique_ptr<GameObject> go(new GameObject());
             go->Initialize(this, 2.0f, 2.0f, 2.0f, 1.0f);
             go->SetPosition(Vector3((i * 1.0f * 2.0f) - 16, (1.0f * 2.0f * j) - 16, 0.0f));
-            gos[goid_generator()] = std::move(go);
+            go->set_goid(goid_generator());
 
+            SpawnObject(go.get());
+
+            gos[goid_generator()] = std::move(go);            
             inc_goid_generator();
         }
+    }
+
+    printf("after world init\n");
+}
+
+void World::SpawnObject(GameObject* go)
+{
+    if (go == nullptr)
+    {
+        printf("game object is null\n");
+        return;
+    }
+
+    BufferWriter writer;
+
+    NetHeader header;
+    header.cmd = ENetCommandID::NET_CMD_OBJECT_SPAWN;
+    header.Serialize(writer);
+
+    pb::GameObject obj;
+    obj.mutable_position()->set_x(go->GetPosition().x());
+    obj.mutable_position()->set_y(go->GetPosition().y());
+    obj.mutable_position()->set_z(go->GetPosition().z());
+    obj.set_goid(go->goid());
+
+    writer.WriteProto(obj);
+
+    printf("after write single gameobject, len: %lu, pos: %lu\n", writer.Length(), writer.Raw().Position());
+    DumpPacket((char*)(writer.Raw().Buffer()), writer.Length());
+
+    SendToAllClient(writer);
+}
+
+void World::SendToAllClient(BufferWriter& writer)
+{
+    printf("all session count: %d\n", Singleton<SessionManager>::get_mutable_instance().Count());
+    auto& all_sessions = Singleton<SessionManager>::get_mutable_instance().AllSessions();    
+    for (auto& session_item: all_sessions)
+    {
+        uint32_t sid = session_item.first;
+        Session* session = session_item.second.get();
+        if (session == nullptr)
+        {
+            continue;
+        }
+
+        session->SendPackage(writer);
     }
 }
 
 void World::CalcCollision(void *data, dGeomID o1, dGeomID o2)
-{
+{    
+    if (!o1 || !o2) 
+    {
+        return;
+    }
+    
     CollisionParams* params = (CollisionParams*)data;
 
     const int N = 10;
@@ -71,8 +126,11 @@ void World::Tick()
     contact_group = params.contact_group;
 
     // Phyx simulation
-    dWorldStep(phyx_world, 0.01);
+    dWorldStep(phyx_world, 0.015);
+
     dJointGroupEmpty(contact_group);
+
+    //Replicate();
 }
 
 void World::Replicate()
@@ -82,6 +140,7 @@ void World::Replicate()
     // 1. Write message header
     NetHeader header;
     header.cmd = ENetCommandID::NET_CMD_OBJECT_REPLICATE;
+    header.Serialize(writer);
 
     // Sync gameobject data
     // 2. pack all the gameobject data into packet
@@ -96,21 +155,10 @@ void World::Replicate()
         go->Replicate(writer);
     }
 
-    printf("all session count: %d\n", Singleton<SessionManager>::get_mutable_instance().Count());
+    printf("before send to all client: writer.len: %lu, writer.pos: %lu\n", writer.Length(), writer.Raw().Position());    
 
     // 3. push the data to all the sessions
-    auto& all_sessions = Singleton<SessionManager>::get_mutable_instance().AllSessions();    
-    for (auto& session_item: all_sessions)
-    {
-        uint32_t sid = session_item.first;
-        Session* session = session_item.second.get();
-        if (session == nullptr)
-        {
-            continue;
-        }
-
-        session->SendPackage(writer);
-    }
+    SendToAllClient(writer);
 }
 
 void World::Destroy()

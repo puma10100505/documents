@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(game_networking)
 set(bin_name networking_lab)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -O2 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g ")
 
 option(with_ode "switch for ode including" OFF)
 

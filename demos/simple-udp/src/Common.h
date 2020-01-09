@@ -71,4 +71,18 @@ private:
     GETSETVAR(float, z, 0.0f);
     GETSETVAR(float, w, 0.0f);
 };
+
+static void DumpPacket(const char *packet, size_t plen)
+{
+    for (int i = 0; i < static_cast<int>(plen); i++)
+    {
+        if (i % 32 == 0)
+        {
+            printf("\n");
+        }
+        printf("%2x ", packet[i]);
+    }
+
+    printf("\n");
+};
 }; // namespace yinpsoft

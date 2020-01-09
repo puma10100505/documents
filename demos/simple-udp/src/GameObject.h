@@ -30,7 +30,7 @@ public:
     inline World *GetWorld_Mutable() { return world_ptr(); }
 
     void SetPosition(const Vector3 &pos);
-    Vector3 GetPosition();
+    const Vector3& GetPosition();
     void SetRotation(const Quaternion &q);
     Quaternion GetRotation();
 
@@ -41,7 +41,7 @@ private:
 
 private:
     GETSETVAR(uint32_t, goid, 0);
-    // GETSETVAR(Vector3, position, Vector3::Zero());
+    GETSETVAR(Vector3, position, Vector3::Zero());
     // GETSETVAR(Rotation, rotation, Rotation::Identity());
     GETSETPTR(class World, world);
 

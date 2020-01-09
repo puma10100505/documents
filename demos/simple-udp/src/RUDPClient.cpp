@@ -327,6 +327,7 @@ void RUDPClient::OnRecv()
     recv_bytes = cli_socket.RecvFrom(svr_address, (void *)recv_buff, MAX_RAW_PACKAGE_SIZE);
     // ----------------------------------
 
+    printf("after recv from socket, len: %lu\n", recv_bytes);
     if (recv_bytes <= 0)
     {
         return;
@@ -362,10 +363,15 @@ void RUDPClient::OnRecv()
         resp.package.quit = pkg;
         break;
     }
-    case ENetCommandID::NET_CMD_BUILD_WORLD:
+    case ENetCommandID::NET_CMD_OBJECT_SPAWN:
     {
-        
-        
+        printf("NET_CMD_OBJECT_SPAWN, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());
+        break;  
+    }
+    case ENetCommandID::NET_CMD_OBJECT_REPLICATE:
+    {
+        printf("NET_CMD_OBJECT_REPLICATE, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());
+        break;
     }
     default:
         break;

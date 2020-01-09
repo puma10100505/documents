@@ -42,8 +42,12 @@ GameEngine &GameEngine::Initialize(int32_t interval)
     // Init udp server
     Singleton<RUDPServer>::get_mutable_instance().Initialize(server_appid, server_port);
 
+    printf("after rudpserver init\n");
+
     // Init World
     Singleton<World>::get_mutable_instance().Initialize();
+
+    printf("after world init\n");
 
     return *this;
 }

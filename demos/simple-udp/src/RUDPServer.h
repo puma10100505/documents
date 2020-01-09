@@ -23,8 +23,9 @@ public:
 
     inline NetSocket &GetServerSocket() { return svr_socket; }
 
-private:
     void DumpPacket(const char *packet, size_t plen);
+
+private:    
     bool OnValidate(const NetHeader &header);
     void OnRecvBytes();
 

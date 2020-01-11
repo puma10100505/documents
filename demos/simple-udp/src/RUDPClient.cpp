@@ -121,21 +121,6 @@ void RUDPClient::PerformStart()
     SendPackage(writer);
 }
 
-void RUDPClient::ResolveQuit(const QuitResp &pkg)
-{
-    printf("entry of ResolveQuit.......... pkg: %s\n", pkg.ToString().c_str());
-
-    set_sid(0);
-}
-
-void RUDPClient::ResolveStart(const StartResp &pkg)
-{
-    // TODO: 处理START回包
-    printf("entry of ResolveStart.......... pkg: %s\n", pkg.ToString().c_str());
-
-    set_sid(pkg.sid);
-    set_battle_id(pkg.battle_id);
-}
 
 void RUDPClient::PerformData()
 {
@@ -257,6 +242,8 @@ void RUDPClient::SendThread()
 {
     while (running())
     {
+        OnCommandDispatch();
+
         if (pending_send_list.size() <= 0)
         {
             std::this_thread::sleep_for(thread_interval);
@@ -366,11 +353,15 @@ void RUDPClient::OnRecv()
     case ENetCommandID::NET_CMD_OBJECT_SPAWN:
     {
         printf("NET_CMD_OBJECT_SPAWN, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());
+        pb::PBGameObject go;
+        reader.ReadProto(go);
+        printf("after read proto of gameobject, go: %s\n", go.ShortDebugString().c_str());
+        resp.package.go = go;
         break;  
     }
     case ENetCommandID::NET_CMD_OBJECT_REPLICATE:
     {
-        printf("NET_CMD_OBJECT_REPLICATE, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());
+        printf("NET_CMD_OBJECT_REPLICATE, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());        
         break;
     }
     default:
@@ -396,29 +387,7 @@ void RUDPClient::UpdateThread()
 
 void RUDPClient::OnUpdate()
 {
-    for (int32_t i = 0; i < static_cast<int32_t>(pending_recv_list.size()); i++)
-    {
-        const ReceivedPackage &pkg = pending_recv_list[i];
-
-        switch (pkg.cmd)
-        {
-        case ENetCommandID::NET_CMD_START:
-            ResolveStart(pkg.package.start);
-            break;
-        case ENetCommandID::NET_CMD_QUIT:
-            ResolveQuit(pkg.package.quit);
-            break;
-        default:
-            break;
-        }
-
-        // Logic Process...
-        // printf("fragment_idx: %u, fragment_count: %u, pkg_len: %lu, pkg_content: %s\n",
-        //        pkg.package.fragment_idx, pkg.package.fragment_count,
-        //        pkg.package.pkg_len, pkg.package.pkg_buff);
-    }
-
-    pending_recv_list.clear();
+    
 }
 
 void RUDPClient::Run()
@@ -437,24 +406,24 @@ void RUDPClient::Run()
     boost::thread update_thread(boost::bind(&RUDPClient::UpdateThread, this));
     update_thread.detach();
 
-    while (running())
-    {
-        // 1. 客户端输入(命令行)
-        if (enable_shm == false)
-        {
-            printf("waiting input: \n");
-            OnInput();
-        }
-        // 2. 分发命令
-        OnCommandDispatch();
-        printf("after OnCommandDispatch\n");
+    // while (running())
+    // {
+    //     // 1. 客户端输入(命令行)
+    //     if (enable_shm == false)
+    //     {
+    //         printf("waiting input: \n");
+    //         OnInput();
+    //     }
+    //     // 2. 分发命令
+    //     OnCommandDispatch();
+    //     printf("after OnCommandDispatch\n");
 
-        std::this_thread::sleep_for(tick_interval);
-        client_tick++;
-        seq++;
-    }
+    //     std::this_thread::sleep_for(tick_interval);
+    //     client_tick++;
+    //     seq++;
+    // }
 
-    Stop();
+    // Stop();
 }
 
 void RUDPClient::DumpBuffer(RawBuffer &buff)

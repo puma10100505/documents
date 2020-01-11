@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include "PropertyMacros.h"
+#include "gameplay.pb.h"
 
 using namespace std;
 using namespace yinpsoft;
@@ -31,11 +32,12 @@ typedef struct
         RawPackage raw;
         StartResp start;
         QuitResp quit;
+        pb::PBGameObject go;        
     } package;
 
 } ReceivedPackage;
 
-class RUDPClient final
+class RUDPClient 
 {
 public:
     RUDPClient()
@@ -63,6 +65,8 @@ public:
     void RecvThread();
     void UpdateThread();
 
+    
+
 private:
     void DumpPacket(const char *packet, size_t plen);
     void DumpBuffer(RawBuffer &buff);
@@ -75,7 +79,7 @@ private:
     void OnCommandDispatch();
     void OnRecv();
     bool OnValidate(const NetHeader &header);
-    void OnUpdate();
+    virtual void OnUpdate();
 
 private:
     void PerformQuit();
@@ -84,8 +88,7 @@ private:
     void PerformStart();
     void PerformOpenWorld();
 
-    void ResolveStart(const StartResp &pkg);
-    void ResolveQuit(const QuitResp &pkg);
+    
 
 private:
     uint32_t application_id;

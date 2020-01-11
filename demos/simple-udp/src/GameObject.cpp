@@ -64,7 +64,7 @@ Quaternion GameObject::GetRotation()
 void GameObject::Replicate(BufferWriter& writer)
 {
     Vector3 pos = GetPosition();
-    pb::GameObject data;
+    pb::PBGameObject data;
     data.mutable_position()->set_x(pos.x());
     data.mutable_position()->set_y(pos.y());
     data.mutable_position()->set_z(pos.z());

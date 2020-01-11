@@ -3,7 +3,12 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include "NetMessage.h"
 #include <chrono>
+#include "GameObject.h"
+#include <memory>
+#include "RUDPClient.h"
+#include "gameplay.pb.h"
 
 using namespace std;
 using namespace chrono;
@@ -29,10 +34,7 @@ typedef struct {
     high_resolution_clock::time_point event_time;
 } ColorItem;
 
-static dWorldID world;  // hold the rigidbodies for display
-static dSpaceID space;  // hold the geometries for collision detection
-static dGeomID ground;
-static dJointGroupID contactgroup;
+
 static int flag = 0;
 static dsFunctions fn;
 static const dReal radius = 0.2;
@@ -292,3 +294,32 @@ static void InitWorld(int argc, char** argv) {
     dCloseODE();
 }
 
+namespace yinpsoft
+{
+    class RUDPClient;
+    class GameObject;
+
+    class GameClient final : public RUDPClient
+    {
+        public:
+            GameClient() {}
+            ~GameClient(){}
+
+        public:
+            void Init();
+            void Start();
+            
+            virtual void OnUpdate() override;
+
+            void ResolveStart(const StartResp &pkg);
+            void ResolveQuit(const QuitResp &pkg);
+            void ResolveGameObject(const pb::PBGameObject& pkg);
+
+        private:
+            std::unordered_map<uint32_t, std::unique_ptr<GameObject>> gos;
+            dWorldID world;  // hold the rigidbodies for display
+            dSpaceID space;  // hold the geometries for collision detection
+            dGeomID ground;
+            dJointGroupID contactgroup;
+    };
+};

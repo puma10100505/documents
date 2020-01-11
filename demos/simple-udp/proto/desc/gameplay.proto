@@ -17,7 +17,7 @@ message PBVector3
     float z = 3;
 }
 
-message GameObject
+message PBGameObject
 {
     int32 goid = 1;
     PBVector3 position = 2;

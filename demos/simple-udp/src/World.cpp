@@ -37,7 +37,6 @@ void World::Initialize()
             go->set_goid(goid_generator());
 
             SpawnObject(go.get());
-
             gos[goid_generator()] = std::move(go);            
             inc_goid_generator();
         }
@@ -60,7 +59,7 @@ void World::SpawnObject(GameObject* go)
     header.cmd = ENetCommandID::NET_CMD_OBJECT_SPAWN;
     header.Serialize(writer);
 
-    pb::GameObject obj;
+    pb::PBGameObject obj;
     obj.mutable_position()->set_x(go->GetPosition().x());
     obj.mutable_position()->set_y(go->GetPosition().y());
     obj.mutable_position()->set_z(go->GetPosition().z());
@@ -77,6 +76,11 @@ void World::SpawnObject(GameObject* go)
 void World::SendToAllClient(BufferWriter& writer)
 {
     printf("all session count: %d\n", Singleton<SessionManager>::get_mutable_instance().Count());
+    if (Singleton<SessionManager>::get_mutable_instance().Count() == 0) 
+    {
+        return;
+    }
+
     auto& all_sessions = Singleton<SessionManager>::get_mutable_instance().AllSessions();    
     for (auto& session_item: all_sessions)
     {

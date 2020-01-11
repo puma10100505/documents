@@ -30,11 +30,13 @@ public:
     inline dWorldID &GetPhyxWorld() { return phyx_world; }
     inline dSpaceID &GetPhyxSpace() { return phyx_space; }
 
-    void SpawnObject(GameObject* go);
+    void SpawnObject(GameObject* go, uint32_t sid = 0);
+    void ReplicateAllGameObjects(uint32_t sid);
 
 private:
     static void CalcCollision(void *data, dGeomID o1, dGeomID o2);
     void SendToAllClient(BufferWriter& writer);
+    void SendBySessionID(BufferWriter& writer, uint32_t sid);
 
 private:
     GETSETVAR(uint64_t, battle_id, 0);

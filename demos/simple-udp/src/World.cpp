@@ -32,7 +32,7 @@ void World::Initialize()
         for (int j = 0; j < 5; j++)
         {
             std::unique_ptr<GameObject> go(new GameObject());
-            go->Initialize(this, 2.0f, 2.0f, 2.0f, 1.0f);
+            go->Initialize(this, 1.0f, 1.0f, 1.0f, .5f);
             go->SetPosition(Vector3((i * 1.0f * 2.0f) - 16, (1.0f * 2.0f * j) - 16, 0.0f));
             go->set_goid(goid_generator());
 
@@ -45,7 +45,21 @@ void World::Initialize()
     printf("after world init\n");
 }
 
-void World::SpawnObject(GameObject* go)
+void World::ReplicateAllGameObjects(uint32_t sid)
+{
+    for (auto& goitem: gos)
+    {
+        GameObject* go = goitem.second.get();
+        if (go == nullptr)
+        {
+            continue;
+        }
+
+        SpawnObject(go, sid);
+    }
+}
+
+void World::SpawnObject(GameObject* go, uint32_t sid)
 {
     if (go == nullptr)
     {
@@ -70,7 +84,27 @@ void World::SpawnObject(GameObject* go)
     printf("after write single gameobject, len: %lu, pos: %lu\n", writer.Length(), writer.Raw().Position());
     DumpPacket((char*)(writer.Raw().Buffer()), writer.Length());
 
-    SendToAllClient(writer);
+    if (sid == 0)
+    {
+        SendToAllClient(writer);
+    }
+    else 
+    {
+        SendBySessionID(writer, sid);
+    }
+}
+
+void World::SendBySessionID(BufferWriter& writer, uint32_t sid)
+{
+    Session* session = Singleton<SessionManager>::get_mutable_instance().GetSession(sid);
+    if (session == nullptr) 
+    {
+        printf("not found session, sid: %u\n", sid);
+        return;
+    }
+
+    session->SendPackage(writer);
+    printf("after send gameobject (SendBySessionID) sid: %u\n", sid);
 }
 
 void World::SendToAllClient(BufferWriter& writer)

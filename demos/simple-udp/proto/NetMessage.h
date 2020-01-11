@@ -292,6 +292,57 @@ typedef struct
     }
 } OpenWorldResp;
 
+typedef struct 
+{
+    uint64_t guid;
+    uint32_t sid;
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteUInt64(guid);
+        writer.WriteUInt32(sid);
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        guid = reader.ReadUInt64();
+        sid = reader.ReadUInt32();
+    }
+
+    std::string ToString() const
+    {
+        char str[128];
+        snprintf(str, 128, "guid: %lu|sid: %u", guid, sid);
+        return str;
+    }
+} EnterReq;
+
+typedef struct
+{
+    uint64_t battle_id;
+
+    size_t Serialize(yinpsoft::BufferWriter &writer)
+    {
+        writer.WriteUInt64(battle_id);
+
+        return writer.Raw().Length();
+    }
+
+    void Deserialize(yinpsoft::BufferReader &reader)
+    {
+        battle_id = reader.ReadUInt64();
+    }
+
+    std::string ToString() const
+    {
+        char str[128];
+        snprintf(str, 128, "battle_id: %lu", battle_id);
+        return str;
+    }
+} EnterResp;
+
 #pragma pack()
 
 }; // namespace yinpsoft

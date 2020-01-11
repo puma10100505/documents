@@ -31,11 +31,19 @@ typedef struct
     union {
         RawPackage raw;
         StartResp start;
-        QuitResp quit;
-        pb::PBGameObject go;        
+        QuitResp quit;    
     } package;
-
+    pb::PBGameObject go;
 } ReceivedPackage;
+
+enum EClientStatus {
+    CS_NONE = 0,
+    CS_START,
+    CS_ENTER,
+    CS_READY,
+    CS_QUIT,
+    CS_MAX
+};
 
 class RUDPClient 
 {
@@ -51,7 +59,7 @@ public:
         // shared_memory_object::remove("SHM_COMMAND_LIST");
     }
 
-    RUDPClient &Initialize(uint32_t appid, unsigned int address,
+    virtual void Initialize(uint32_t appid, unsigned int address,
                            unsigned short port, bool shm = false,
                            int32_t interval_ms = 100);
 
@@ -64,7 +72,6 @@ public:
     void SendThread();
     void RecvThread();
     void UpdateThread();
-
     
 
 private:
@@ -86,7 +93,7 @@ private:
     void PerformHeartbeat();
     void PerformData();
     void PerformStart();
-    void PerformOpenWorld();
+    void PerformPlayerEnter();
 
     
 
@@ -115,5 +122,6 @@ private:
     std::unordered_map<std::string, ENetCommandID> command_map;
 
     GETSETVAR(bool, running, false);
+    GETSETVAR(EClientStatus, status, EClientStatus::CS_NONE);
 };
 }; // namespace yinpsoft

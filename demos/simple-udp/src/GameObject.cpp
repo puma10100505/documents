@@ -70,6 +70,6 @@ void GameObject::Replicate(BufferWriter& writer)
     data.mutable_position()->set_z(pos.z());
     data.set_goid(goid());
 
-    printf("before write pb, msg: %s\n", data.ShortDebugString().c_str());
+    // printf("before write pb, msg: %s\n", data.ShortDebugString().c_str());
     writer.WriteProto(data);
 }

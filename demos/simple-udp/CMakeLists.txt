@@ -25,6 +25,8 @@ file(GLOB source
     ${solution_root}/proto/*.pb.cc 
 )
 
+message(${source})
+
 # message(${source})
 
 include_directories(
@@ -39,13 +41,13 @@ link_directories(
     ${solution_root}/libs
 )
 
-find_library(lib_pb protobuf ${solution_root}/libs /usr/local/lib)
+find_library(lib_pb protobuf ${solution_root}/libs /usr/local/lib /usr/local/lib64)
 find_library(lib_boost_chrono boost_chrono ${solution_root}/libs /usr/local/lib)
 find_library(lib_boost_log boost_log ${solution_root}/libs /usr/local/lib)
 find_library(lib_boost_log_setup boost_log_setup ${solution_root}/libs /usr/local/lib)
 
 if (${with_ode} STREQUAL "ON")
-find_library(lib_ode ode /usr/local/lib)
+find_library(lib_ode ode /usr/local/lib /usr/local/lib64)
 find_library(lib_drawstuff drawstuff ${solution_root}/libs)
 endif()
 

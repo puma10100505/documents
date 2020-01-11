@@ -44,6 +44,7 @@ private:
     GETSETVAR(int64_t, guid, 0);
     GETSETPTR(class RUDPServer, server);
     NetAddress client_addr;
+    
 };
 
 class SessionManager final

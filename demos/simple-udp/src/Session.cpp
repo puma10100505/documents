@@ -175,7 +175,6 @@ Session *SessionManager::CreateSession(RUDPServer *server)
 
     std::unique_ptr<Session> new_s(new Session());
     new_s->set_sid(SessionManager::sid_seq);
-    // new_s->set_guid(guid);
     new_s->set_server(server);
 
     session_list[SessionManager::sid_seq] = std::move(new_s);

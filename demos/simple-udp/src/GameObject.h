@@ -3,6 +3,7 @@
 #include "PropertyMacros.h"
 #include "Common.h"
 #include "ode/ode.h"
+#include "gameplay.pb.h"
 
 namespace yinpsoft
 {

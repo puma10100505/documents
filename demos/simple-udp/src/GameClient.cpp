@@ -1,18 +1,39 @@
 #include "GameClient.h"
+#include "GameObject.h"
+#include "Common.h"
 
-void GameClient::Init()
+void GameClient::Initialize(uint32_t appid, unsigned int address,
+                           unsigned short port, bool shm,
+                           int32_t interval_ms)
 {
-    world = dWorldCreate();
-    space = dHashSpaceCreate(0);
+    RUDPClient::Initialize(appid, address, port);
 }
 
 void GameClient::Start()
 {
+    if (status() == EClientStatus::CS_NONE)
+    {
+        PushCommandLine(ENetCommandID::NET_CMD_START);
+    }
 
+    RUDPClient::Run();
 }
 
 void GameClient::OnUpdate()
 {
+    printf("updating in gameclient, client_status: %d\n", status());
+    switch (status()) 
+    {
+        case EClientStatus::CS_START:
+            printf("entry of processing for start status");
+            PushCommandLine(ENetCommandID::NET_CMD_PLAYER_ENTER);
+            set_status(EClientStatus::CS_READY);
+            break;
+
+        default:
+            break;
+    }
+
     for (int32_t i = 0; i < static_cast<int32_t>(pending_recv_list.size()); i++)
     {
         const ReceivedPackage &pkg = pending_recv_list[i];
@@ -21,13 +42,16 @@ void GameClient::OnUpdate()
         {
         case ENetCommandID::NET_CMD_START:
             ResolveStart(pkg.package.start);
+            set_status(EClientStatus::CS_START);
             break;
         case ENetCommandID::NET_CMD_QUIT:
             ResolveQuit(pkg.package.quit);
+            set_status(EClientStatus::CS_QUIT);
             break;
         case ENetCommandID::NET_CMD_OBJECT_SPAWN:
             //TODO:
-            ResolveGameObject(pkg.package.go);
+            ResolveGameObject(pkg.go);
+
             break;
         default:
             break;
@@ -39,6 +63,7 @@ void GameClient::OnUpdate()
 
 void GameClient::ResolveGameObject(const pb::PBGameObject& pkg)
 {
+    printf("ResolveGameObject entry of method, pkg: %s\n", pkg.ShortDebugString().c_str());
     if (gos.find(pkg.goid()) == gos.end())
     {
         std::unique_ptr<GameObject> go_ptr(new GameObject());

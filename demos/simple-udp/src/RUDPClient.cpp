@@ -4,12 +4,13 @@
 
 #include "boost/thread/thread.hpp"
 #include "boost/bind/bind.hpp"
+#include "gameplay.pb.h"
 
 using namespace yinpsoft;
 
 static const chrono::milliseconds thread_interval(50);
 
-RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
+void RUDPClient::Initialize(uint32_t appid, unsigned int address,
                                    unsigned short port, bool shm,
                                    int32_t interval_ms)
 {
@@ -17,7 +18,7 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
     int result = cli_socket.Open();
     if (result < 0)
     {
-        return *this;
+        return ;
     }
 
     // cli_socket.SetNonBlock();
@@ -40,7 +41,7 @@ RUDPClient &RUDPClient::Initialize(uint32_t appid, unsigned int address,
 
     printf("finish client init\n");
 
-    return *this;
+    return ;
 }
 
 void RUDPClient::SendPackage(BufferWriter &writer)
@@ -84,13 +85,30 @@ void RUDPClient::PerformHeartbeat()
     SendPackage(writer);
 }
 
-void RUDPClient::PerformOpenWorld()
+// void RUDPClient::PerformOpenWorld()
+// {
+//     NetHeader header;
+//     header.cmd = ENetCommandID::NET_CMD_BUILD_WORLD;
+//     header.sid = sid();
+
+//     OpenWorldReq req;
+//     req.guid = guid();
+//     req.sid = sid();
+
+//     BufferWriter writer;
+//     header.Serialize(writer);
+//     req.Serialize(writer);
+
+//     SendPackage(writer);
+// }
+
+void RUDPClient::PerformPlayerEnter()
 {
     NetHeader header;
-    header.cmd = ENetCommandID::NET_CMD_BUILD_WORLD;
+    header.cmd = ENetCommandID::NET_CMD_PLAYER_ENTER;
     header.sid = sid();
 
-    OpenWorldReq req;
+    EnterReq req;
     req.guid = guid();
     req.sid = sid();
 
@@ -121,21 +139,6 @@ void RUDPClient::PerformStart()
     SendPackage(writer);
 }
 
-void RUDPClient::ResolveQuit(const QuitResp &pkg)
-{
-    printf("entry of ResolveQuit.......... pkg: %s\n", pkg.ToString().c_str());
-
-    set_sid(0);
-}
-
-void RUDPClient::ResolveStart(const StartResp &pkg)
-{
-    // TODO: 处理START回包
-    printf("entry of ResolveStart.......... pkg: %s\n", pkg.ToString().c_str());
-
-    set_sid(pkg.sid);
-    set_battle_id(pkg.battle_id);
-}
 
 void RUDPClient::PerformData()
 {
@@ -184,9 +187,9 @@ void RUDPClient::NetCommandDispatcher(const int32_t cmd)
         PerformStart();
         break;
     }
-    case ENetCommandID::NET_CMD_BUILD_WORLD:
+    case ENetCommandID::NET_CMD_PLAYER_ENTER:
     {
-        PerformOpenWorld();
+        PerformPlayerEnter();
         break;
     }
     default:
@@ -196,6 +199,8 @@ void RUDPClient::NetCommandDispatcher(const int32_t cmd)
     }
     }
 }
+
+
 
 void RUDPClient::OnInput()
 {
@@ -257,6 +262,8 @@ void RUDPClient::SendThread()
 {
     while (running())
     {
+        OnCommandDispatch();
+
         if (pending_send_list.size() <= 0)
         {
             std::this_thread::sleep_for(thread_interval);
@@ -322,11 +329,13 @@ void RUDPClient::OnRecv()
 
     ssize_t recv_bytes = 0;
 
+    printf("before waiting recv\n");
     // ----------------------------------
     // 接收服务器回包
     recv_bytes = cli_socket.RecvFrom(svr_address, (void *)recv_buff, MAX_RAW_PACKAGE_SIZE);
     // ----------------------------------
 
+    printf("after recv from socket, len: %lu\n", recv_bytes);
     if (recv_bytes <= 0)
     {
         return;
@@ -362,10 +371,19 @@ void RUDPClient::OnRecv()
         resp.package.quit = pkg;
         break;
     }
-    case ENetCommandID::NET_CMD_BUILD_WORLD:
+    case ENetCommandID::NET_CMD_OBJECT_SPAWN:
     {
-        
-        
+        printf("NET_CMD_OBJECT_SPAWN, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());
+        pb::PBGameObject go;
+        reader.ReadProto(go);
+        printf("after read proto of gameobject, go: %s\n", go.ShortDebugString().c_str());
+        resp.go = go;
+        break;  
+    }
+    case ENetCommandID::NET_CMD_OBJECT_REPLICATE:
+    {
+        printf("NET_CMD_OBJECT_REPLICATE, pkg.len: %lu, pkg.pos: %lu\n", reader.Raw().Length(), reader.Raw().Position());        
+        break;
     }
     default:
         break;
@@ -390,29 +408,7 @@ void RUDPClient::UpdateThread()
 
 void RUDPClient::OnUpdate()
 {
-    for (int32_t i = 0; i < static_cast<int32_t>(pending_recv_list.size()); i++)
-    {
-        const ReceivedPackage &pkg = pending_recv_list[i];
-
-        switch (pkg.cmd)
-        {
-        case ENetCommandID::NET_CMD_START:
-            ResolveStart(pkg.package.start);
-            break;
-        case ENetCommandID::NET_CMD_QUIT:
-            ResolveQuit(pkg.package.quit);
-            break;
-        default:
-            break;
-        }
-
-        // Logic Process...
-        // printf("fragment_idx: %u, fragment_count: %u, pkg_len: %lu, pkg_content: %s\n",
-        //        pkg.package.fragment_idx, pkg.package.fragment_count,
-        //        pkg.package.pkg_len, pkg.package.pkg_buff);
-    }
-
-    pending_recv_list.clear();
+    printf("on update in parent\n");
 }
 
 void RUDPClient::Run()
@@ -425,30 +421,12 @@ void RUDPClient::Run()
     boost::thread send_thread(boost::bind(&RUDPClient::SendThread, this));
     send_thread.detach();
 
-    boost::thread recv_thread(boost::bind(&RUDPClient::RecvThread, this));
-    recv_thread.detach();
-
     boost::thread update_thread(boost::bind(&RUDPClient::UpdateThread, this));
     update_thread.detach();
 
-    while (running())
-    {
-        // 1. 客户端输入(命令行)
-        if (enable_shm == false)
-        {
-            printf("waiting input: \n");
-            OnInput();
-        }
-        // 2. 分发命令
-        OnCommandDispatch();
-        printf("after OnCommandDispatch\n");
+    boost::thread recv_thread(boost::bind(&RUDPClient::RecvThread, this));
+    recv_thread.detach();
 
-        std::this_thread::sleep_for(tick_interval);
-        client_tick++;
-        seq++;
-    }
-
-    Stop();
 }
 
 void RUDPClient::DumpBuffer(RawBuffer &buff)

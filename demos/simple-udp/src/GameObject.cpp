@@ -9,7 +9,7 @@ using namespace yinpsoft;
 void GameObject::Initialize(World* pw, float l, float w, float h, float d)
 {
     set_world(pw);
-    dBodyCreate(world_ptr()->GetPhyxWorld());
+    rigidbody_id = dBodyCreate(world_ptr()->GetPhyxWorld());
     set_length(l);
     set_width(w);
     set_height(h);
@@ -30,13 +30,18 @@ void GameObject::SetMass()
 
 void GameObject::SetPosition(const Vector3 &pos)
 {
+    mutable_position().set_x(pos.x());
+    mutable_position().set_y(pos.y());    
+    mutable_position().set_z(pos.z());
     dBodySetPosition(rigidbody_id, pos.x(), pos.y(), pos.z());
 }
 
-Vector3 GameObject::GetPosition()
+const Vector3& GameObject::GetPosition()
 {
-    const dReal *tmp = dBodyGetPosition(rigidbody_id);
-    return Vector3(tmp[0], tmp[1], tmp[2]);
+    // const dReal *tmp = dBodyGetPosition(rigidbody_id);
+    // return Vector3(tmp[0], tmp[1], tmp[2]);
+
+    return position();
 }
 
 void GameObject::SetRotation(const Quaternion &q)
@@ -59,12 +64,12 @@ Quaternion GameObject::GetRotation()
 void GameObject::Replicate(BufferWriter& writer)
 {
     Vector3 pos = GetPosition();
-    pb::GameObject data;
+    pb::PBGameObject data;
     data.mutable_position()->set_x(pos.x());
     data.mutable_position()->set_y(pos.y());
     data.mutable_position()->set_z(pos.z());
-
     data.set_goid(goid());
 
-    data.SerializeToArray(writer.MutableRaw().MutableBuffer(), data.ByteSizeLong());
+    // printf("before write pb, msg: %s\n", data.ShortDebugString().c_str());
+    writer.WriteProto(data);
 }

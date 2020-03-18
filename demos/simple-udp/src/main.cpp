@@ -12,12 +12,12 @@ TODO: 1.梳理并重新设置网络层及应用层协议包结构
 #include "Commands.h"
 #include "GameEngine.h"
 #include <chrono>
-
+#include <memory>
 #include "NetMessage.h"
 #include "google/protobuf/message.h"
 
 #ifdef GLCLI
-#include "GameClient.h"
+#include "GameRenderer.h"
 #endif
 
 using namespace yinpsoft;
@@ -31,12 +31,13 @@ void interrupt_signal_handler(int signum)
     if (app_type == "cli" || app_type == "client" || app_type == "rawcli")
     {
         Singleton<RUDPClient>::get_mutable_instance().set_running(false);
-        return;
+        exit(0);
     }
 
     if (app_type == "svr" || app_type == "server")
     {
         Singleton<GameEngine>::get_mutable_instance().set_running(false);
+        exit(0);
     }
 }
 
@@ -60,19 +61,22 @@ int main(int argc, char **argv)
     else if (app_type == "rawcli")
     {
         printf("start client ...\n");
-        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
+        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888);
+        Singleton<RUDPClient>::get_mutable_instance().Run();
     }
 #ifdef GLCLI
     else if (app_type == "cli" || app_type == "client")
     {
         printf("start client ...\n");
-        InitWorld(argc, argv);
+        //InitWorld(argc, argv);
+        GameStart(argc, argv);
     }
 #else
     else if (app_type == "cli" || app_type == "client")
     {
-        printf("start client ...\n");
-        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888).Run();
+        printf("start raw client ...\n");
+        Singleton<RUDPClient>::get_mutable_instance().Initialize(0x11223344, htonl(inet_addr("127.0.0.1")), 8888);
+        Singleton<RUDPClient>::get_mutable_instance().Run();
     }
 #endif
 

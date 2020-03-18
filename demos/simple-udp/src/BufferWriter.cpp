@@ -25,5 +25,9 @@ void BufferWriter::WriteBool(bool value)
 
 bool BufferWriter::WriteProto(const google::protobuf::Message &msg)
 {
-    return msg.SerializeToArray((void *)raw_buffer.MutableBuffer(), msg.ByteSizeLong());
+    char buff[500];    
+    msg.SerializeToArray(buff, msg.ByteSizeLong());
+    // printf("WriteProto msg: len: %lu, pos: %lu, buff.len: %lu\n", msg.ByteSizeLong(), raw_buffer.Position(), sizeof(buff));
+    raw_buffer.WriteBytes((uint8_t*)buff, msg.ByteSizeLong());
+    return true;
 }

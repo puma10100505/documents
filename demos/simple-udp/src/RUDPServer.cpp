@@ -3,6 +3,7 @@
 #include "Session.h"
 #include "Singleton.h"
 #include "NetMessage.h"
+#include "World.h"
 
 using namespace yinpsoft;
 
@@ -45,6 +46,8 @@ void RUDPServer::OnRecvBytes()
     BufferReader reader(socket_recv_buffer, recv_bytes);
     header.Deserialize(reader);
 
+    printf("-------> COMMAND %d from client sid: %u <-----------------\n", header.cmd, header.sid);
+
     if (OnValidate(header) == false)
     {
         printf("validate header failed\n");
@@ -58,32 +61,64 @@ void RUDPServer::OnRecvBytes()
     }
 
     // find a session to process rawpackage
+    // Session *session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
+
+    // // 在非START协议的情况下SESSION为空是异常情况
+    // if (session == nullptr && header.cmd != ENetCommandID::NET_CMD_START)
+    // {
+    //     printf("not found the session by sid: %u\n", header.sid);
+    //     return;
+    // }
+
+    // // 如果是START则新创建一个SESSION
+    // if (header.cmd == ENetCommandID::NET_CMD_START)
+    // {
+    //     // Create a new session
+    //     session = Singleton<SessionManager>::get_mutable_instance().CreateSession(this);
+    // }
+
+    // // 这里SESSION为空是异常情况
+    // if (session == nullptr)
+    // {
+    //     printf("get or create session failed \n");
+    //     return;
+    // }
+
+    // session->SetClientAddress(from_addr);
+
+    ssize_t ret = 0;
+
     Session *session = Singleton<SessionManager>::get_mutable_instance().GetSession(header.sid);
 
-    // 在非START协议的情况下SESSION为空是异常情况
     if (session == nullptr && header.cmd != ENetCommandID::NET_CMD_START)
     {
         printf("not found the session by sid: %u\n", header.sid);
         return;
     }
 
-    // 如果是START则新创建一个SESSION
-    if (header.cmd == ENetCommandID::NET_CMD_START)
+    switch (header.cmd) 
     {
-        // Create a new session
-        session = Singleton<SessionManager>::get_mutable_instance().CreateSession(this);
+        case ENetCommandID::NET_CMD_START:
+        {
+            session = Singleton<SessionManager>::get_mutable_instance().CreateSession(this);
+            if (session == nullptr)
+            {
+                printf("get or create session failed \n");
+                return;
+            }
+            session->SetClientAddress(from_addr);
+            break;
+        }
+        case ENetCommandID::NET_CMD_PLAYER_ENTER:
+        {
+            Singleton<World>::get_mutable_instance().ReplicateAllGameObjects(header.sid);
+            // session->SendPackage(writer);
+            break;
+        }
+
+        default:
+            break;
     }
-
-    // 这里SESSION为空是异常情况
-    if (session == nullptr)
-    {
-        printf("get or create session failed \n");
-        return;
-    }
-
-    session->SetClientAddress(from_addr);
-
-    ssize_t ret = 0;
 
     session->CommandDispatcher(header.cmd, reader);
 

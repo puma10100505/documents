@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include "PropertyMacros.h"
+#include "gameplay.pb.h"
 
 using namespace std;
 using namespace yinpsoft;
@@ -30,12 +31,21 @@ typedef struct
     union {
         RawPackage raw;
         StartResp start;
-        QuitResp quit;
+        QuitResp quit;    
     } package;
-
+    pb::PBGameObject go;
 } ReceivedPackage;
 
-class RUDPClient final
+enum EClientStatus {
+    CS_NONE = 0,
+    CS_START,
+    CS_ENTER,
+    CS_READY,
+    CS_QUIT,
+    CS_MAX
+};
+
+class RUDPClient 
 {
 public:
     RUDPClient()
@@ -49,7 +59,7 @@ public:
         // shared_memory_object::remove("SHM_COMMAND_LIST");
     }
 
-    RUDPClient &Initialize(uint32_t appid, unsigned int address,
+    virtual void Initialize(uint32_t appid, unsigned int address,
                            unsigned short port, bool shm = false,
                            int32_t interval_ms = 100);
 
@@ -62,6 +72,7 @@ public:
     void SendThread();
     void RecvThread();
     void UpdateThread();
+    
 
 private:
     void DumpPacket(const char *packet, size_t plen);
@@ -75,17 +86,16 @@ private:
     void OnCommandDispatch();
     void OnRecv();
     bool OnValidate(const NetHeader &header);
-    void OnUpdate();
+    virtual void OnUpdate();
 
 private:
     void PerformQuit();
     void PerformHeartbeat();
     void PerformData();
     void PerformStart();
-    void PerformOpenWorld();
+    void PerformPlayerEnter();
 
-    void ResolveStart(const StartResp &pkg);
-    void ResolveQuit(const QuitResp &pkg);
+    
 
 private:
     uint32_t application_id;
@@ -112,5 +122,6 @@ private:
     std::unordered_map<std::string, ENetCommandID> command_map;
 
     GETSETVAR(bool, running, false);
+    GETSETVAR(EClientStatus, status, EClientStatus::CS_NONE);
 };
 }; // namespace yinpsoft

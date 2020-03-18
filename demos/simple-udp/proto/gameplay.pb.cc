@@ -14,7 +14,6 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_gameplay_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_PBRotation_gameplay_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_gameplay_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_PBVector3_gameplay_2eproto;
 namespace yinpsoft {
 namespace pb {
@@ -26,27 +25,26 @@ class PBVector3DefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<PBVector3> _instance;
 } _PBVector3_default_instance_;
-class GameObjectDefaultTypeInternal {
+class PBGameObjectDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<GameObject> _instance;
-} _GameObject_default_instance_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<PBGameObject> _instance;
+} _PBGameObject_default_instance_;
 }  // namespace pb
 }  // namespace yinpsoft
-static void InitDefaultsscc_info_GameObject_gameplay_2eproto() {
+static void InitDefaultsscc_info_PBGameObject_gameplay_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::yinpsoft::pb::_GameObject_default_instance_;
-    new (ptr) ::yinpsoft::pb::GameObject();
+    void* ptr = &::yinpsoft::pb::_PBGameObject_default_instance_;
+    new (ptr) ::yinpsoft::pb::PBGameObject();
     ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::yinpsoft::pb::GameObject::InitAsDefaultInstance();
+  ::yinpsoft::pb::PBGameObject::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_GameObject_gameplay_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_GameObject_gameplay_2eproto}, {
-      &scc_info_PBVector3_gameplay_2eproto.base,
-      &scc_info_PBRotation_gameplay_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_PBGameObject_gameplay_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_PBGameObject_gameplay_2eproto}, {
+      &scc_info_PBVector3_gameplay_2eproto.base,}};
 
 static void InitDefaultsscc_info_PBRotation_gameplay_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -99,46 +97,44 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gameplay_2eproto::offsets[] PR
   PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::PBVector3, y_),
   PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::PBVector3, z_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::GameObject, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::PBGameObject, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::GameObject, goid_),
-  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::GameObject, position_),
-  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::GameObject, rotation_),
+  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::PBGameObject, goid_),
+  PROTOBUF_FIELD_OFFSET(::yinpsoft::pb::PBGameObject, position_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::yinpsoft::pb::PBRotation)},
   { 9, -1, sizeof(::yinpsoft::pb::PBVector3)},
-  { 17, -1, sizeof(::yinpsoft::pb::GameObject)},
+  { 17, -1, sizeof(::yinpsoft::pb::PBGameObject)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::yinpsoft::pb::_PBRotation_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::yinpsoft::pb::_PBVector3_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::yinpsoft::pb::_GameObject_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::yinpsoft::pb::_PBGameObject_default_instance_),
 };
 
 const char descriptor_table_protodef_gameplay_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\016gameplay.proto\022\013yinpsoft.pb\"8\n\nPBRotat"
   "ion\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\t\n\001"
   "w\030\004 \001(\002\",\n\tPBVector3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001"
-  "(\002\022\t\n\001z\030\003 \001(\002\"o\n\nGameObject\022\014\n\004goid\030\001 \001("
-  "\005\022(\n\010position\030\002 \001(\0132\026.yinpsoft.pb.PBVect"
-  "or3\022)\n\010rotation\030\003 \001(\0132\027.yinpsoft.pb.PBRo"
-  "tationb\006proto3"
+  "(\002\022\t\n\001z\030\003 \001(\002\"F\n\014PBGameObject\022\014\n\004goid\030\001 "
+  "\001(\005\022(\n\010position\030\002 \001(\0132\026.yinpsoft.pb.PBVe"
+  "ctor3b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_gameplay_2eproto_deps[1] = {
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gameplay_2eproto_sccs[3] = {
-  &scc_info_GameObject_gameplay_2eproto.base,
+  &scc_info_PBGameObject_gameplay_2eproto.base,
   &scc_info_PBRotation_gameplay_2eproto.base,
   &scc_info_PBVector3_gameplay_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gameplay_2eproto_once;
 static bool descriptor_table_gameplay_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gameplay_2eproto = {
-  &descriptor_table_gameplay_2eproto_initialized, descriptor_table_protodef_gameplay_2eproto, "gameplay.proto", 254,
+  &descriptor_table_gameplay_2eproto_initialized, descriptor_table_protodef_gameplay_2eproto, "gameplay.proto", 213,
   &descriptor_table_gameplay_2eproto_once, descriptor_table_gameplay_2eproto_sccs, descriptor_table_gameplay_2eproto_deps, 3, 0,
   schemas, file_default_instances, TableStruct_gameplay_2eproto::offsets,
   file_level_metadata_gameplay_2eproto, 3, file_level_enum_descriptors_gameplay_2eproto, file_level_service_descriptors_gameplay_2eproto,
@@ -641,32 +637,25 @@ void PBVector3::InternalSwap(PBVector3* other) {
 
 // ===================================================================
 
-void GameObject::InitAsDefaultInstance() {
-  ::yinpsoft::pb::_GameObject_default_instance_._instance.get_mutable()->position_ = const_cast< ::yinpsoft::pb::PBVector3*>(
+void PBGameObject::InitAsDefaultInstance() {
+  ::yinpsoft::pb::_PBGameObject_default_instance_._instance.get_mutable()->position_ = const_cast< ::yinpsoft::pb::PBVector3*>(
       ::yinpsoft::pb::PBVector3::internal_default_instance());
-  ::yinpsoft::pb::_GameObject_default_instance_._instance.get_mutable()->rotation_ = const_cast< ::yinpsoft::pb::PBRotation*>(
-      ::yinpsoft::pb::PBRotation::internal_default_instance());
 }
-class GameObject::_Internal {
+class PBGameObject::_Internal {
  public:
-  static const ::yinpsoft::pb::PBVector3& position(const GameObject* msg);
-  static const ::yinpsoft::pb::PBRotation& rotation(const GameObject* msg);
+  static const ::yinpsoft::pb::PBVector3& position(const PBGameObject* msg);
 };
 
 const ::yinpsoft::pb::PBVector3&
-GameObject::_Internal::position(const GameObject* msg) {
+PBGameObject::_Internal::position(const PBGameObject* msg) {
   return *msg->position_;
 }
-const ::yinpsoft::pb::PBRotation&
-GameObject::_Internal::rotation(const GameObject* msg) {
-  return *msg->rotation_;
-}
-GameObject::GameObject()
+PBGameObject::PBGameObject()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(constructor:yinpsoft.pb.PBGameObject)
 }
-GameObject::GameObject(const GameObject& from)
+PBGameObject::PBGameObject(const PBGameObject& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -675,43 +664,37 @@ GameObject::GameObject(const GameObject& from)
   } else {
     position_ = nullptr;
   }
-  if (from._internal_has_rotation()) {
-    rotation_ = new ::yinpsoft::pb::PBRotation(*from.rotation_);
-  } else {
-    rotation_ = nullptr;
-  }
   goid_ = from.goid_;
-  // @@protoc_insertion_point(copy_constructor:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(copy_constructor:yinpsoft.pb.PBGameObject)
 }
 
-void GameObject::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_GameObject_gameplay_2eproto.base);
+void PBGameObject::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_PBGameObject_gameplay_2eproto.base);
   ::memset(&position_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&goid_) -
       reinterpret_cast<char*>(&position_)) + sizeof(goid_));
 }
 
-GameObject::~GameObject() {
-  // @@protoc_insertion_point(destructor:yinpsoft.pb.GameObject)
+PBGameObject::~PBGameObject() {
+  // @@protoc_insertion_point(destructor:yinpsoft.pb.PBGameObject)
   SharedDtor();
 }
 
-void GameObject::SharedDtor() {
+void PBGameObject::SharedDtor() {
   if (this != internal_default_instance()) delete position_;
-  if (this != internal_default_instance()) delete rotation_;
 }
 
-void GameObject::SetCachedSize(int size) const {
+void PBGameObject::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const GameObject& GameObject::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_GameObject_gameplay_2eproto.base);
+const PBGameObject& PBGameObject::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_PBGameObject_gameplay_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void GameObject::Clear() {
-// @@protoc_insertion_point(message_clear_start:yinpsoft.pb.GameObject)
+void PBGameObject::Clear() {
+// @@protoc_insertion_point(message_clear_start:yinpsoft.pb.PBGameObject)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -720,15 +703,11 @@ void GameObject::Clear() {
     delete position_;
   }
   position_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && rotation_ != nullptr) {
-    delete rotation_;
-  }
-  rotation_ = nullptr;
   goid_ = 0;
   _internal_metadata_.Clear();
 }
 
-const char* GameObject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* PBGameObject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -746,13 +725,6 @@ const char* GameObject::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_position(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .yinpsoft.pb.PBRotation rotation = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_rotation(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -776,9 +748,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* GameObject::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* PBGameObject::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(serialize_to_array_start:yinpsoft.pb.PBGameObject)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -796,24 +768,16 @@ failure:
         2, _Internal::position(this), target, stream);
   }
 
-  // .yinpsoft.pb.PBRotation rotation = 3;
-  if (this->has_rotation()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::rotation(this), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(serialize_to_array_end:yinpsoft.pb.PBGameObject)
   return target;
 }
 
-size_t GameObject::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:yinpsoft.pb.GameObject)
+size_t PBGameObject::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:yinpsoft.pb.PBGameObject)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -825,13 +789,6 @@ size_t GameObject::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *position_);
-  }
-
-  // .yinpsoft.pb.PBRotation rotation = 3;
-  if (this->has_rotation()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *rotation_);
   }
 
   // int32 goid = 1;
@@ -850,23 +807,23 @@ size_t GameObject::ByteSizeLong() const {
   return total_size;
 }
 
-void GameObject::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:yinpsoft.pb.GameObject)
+void PBGameObject::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:yinpsoft.pb.PBGameObject)
   GOOGLE_DCHECK_NE(&from, this);
-  const GameObject* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<GameObject>(
+  const PBGameObject* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<PBGameObject>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:yinpsoft.pb.PBGameObject)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:yinpsoft.pb.GameObject)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:yinpsoft.pb.PBGameObject)
     MergeFrom(*source);
   }
 }
 
-void GameObject::MergeFrom(const GameObject& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:yinpsoft.pb.GameObject)
+void PBGameObject::MergeFrom(const PBGameObject& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:yinpsoft.pb.PBGameObject)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -875,41 +832,37 @@ void GameObject::MergeFrom(const GameObject& from) {
   if (from.has_position()) {
     _internal_mutable_position()->::yinpsoft::pb::PBVector3::MergeFrom(from._internal_position());
   }
-  if (from.has_rotation()) {
-    _internal_mutable_rotation()->::yinpsoft::pb::PBRotation::MergeFrom(from._internal_rotation());
-  }
   if (from.goid() != 0) {
     _internal_set_goid(from._internal_goid());
   }
 }
 
-void GameObject::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:yinpsoft.pb.GameObject)
+void PBGameObject::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:yinpsoft.pb.PBGameObject)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void GameObject::CopyFrom(const GameObject& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:yinpsoft.pb.GameObject)
+void PBGameObject::CopyFrom(const PBGameObject& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:yinpsoft.pb.PBGameObject)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool GameObject::IsInitialized() const {
+bool PBGameObject::IsInitialized() const {
   return true;
 }
 
-void GameObject::InternalSwap(GameObject* other) {
+void PBGameObject::InternalSwap(PBGameObject* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(position_, other->position_);
-  swap(rotation_, other->rotation_);
   swap(goid_, other->goid_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata GameObject::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata PBGameObject::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -924,8 +877,8 @@ template<> PROTOBUF_NOINLINE ::yinpsoft::pb::PBRotation* Arena::CreateMaybeMessa
 template<> PROTOBUF_NOINLINE ::yinpsoft::pb::PBVector3* Arena::CreateMaybeMessage< ::yinpsoft::pb::PBVector3 >(Arena* arena) {
   return Arena::CreateInternal< ::yinpsoft::pb::PBVector3 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::yinpsoft::pb::GameObject* Arena::CreateMaybeMessage< ::yinpsoft::pb::GameObject >(Arena* arena) {
-  return Arena::CreateInternal< ::yinpsoft::pb::GameObject >(arena);
+template<> PROTOBUF_NOINLINE ::yinpsoft::pb::PBGameObject* Arena::CreateMaybeMessage< ::yinpsoft::pb::PBGameObject >(Arena* arena) {
+  return Arena::CreateInternal< ::yinpsoft::pb::PBGameObject >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

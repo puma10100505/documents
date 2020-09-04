@@ -6,6 +6,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "boost/type_index.hpp"
+
 class GameObject
 {
 public:
@@ -378,8 +380,17 @@ void InputMemoryBitStream::ReadBits(uint8_t OutData, uint32_t RequiredBitCount)
     BitHead += RequiredBitCount;
 }
 
+class ClassTypeName
+{
+public:
+    void PrintName() {
+        std::cout << typeid(*this).name() << std::endl;
+    }
+};
+
 /* ---------------------------------------------------------------------------------------- */
 int main() {
+    /*
     OutputMemoryStream stream;
     std::cout << stream.GetCapacity() << " " << stream.GetLength() << std::endl;
     stream.Write<int32_t>(111345330);
@@ -419,7 +430,13 @@ int main() {
     for (int32_t Item: Data)
     {
         std::cout << Item << std::endl;
-    }
+    }*/
+
+    ClassTypeName n;
+    n.PrintName();
+
+    std::cout << boost::typeindex::type_id<ClassTypeName>().raw_name() << std::endl;
+    std::cout << boost::typeindex::type_id<ClassTypeName>().pretty_name() << std::endl;
 
     return 0;
 }

@@ -31,7 +31,11 @@ public:
 
     ~OutputMemoryStream() 
     {
-        std::free(RawBuff);
+        if (RawBuff)
+        {
+            std::free(RawBuff);
+            RawBuff = nullptr;
+        }
     }
 
     template<typename T>
@@ -141,7 +145,15 @@ public:
         //PrepareBuff(InData, sizeof(InData));
     }
 
-    ~InputMemoryStream() { free(RawBuff); }
+    ~InputMemoryStream() 
+    {
+        std::cout << "Entry of destruct" << std::endl; 
+        // if (RawBuff)
+        // {
+        //     free(RawBuff); 
+        //     RawBuff = nullptr;
+        // }
+    }
 
     uint32_t GetRemainingSize() { return Capacity - Head; }
 
